@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="?attr/colorBackground">
+
+    <TextView
+        android:text="Host ID"
+        android:textSize="18sp"
+        android:textColor="?attr/colorOnBackground"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/pcIdInputLayout"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Remote Host ID"
+        app:boxBackgroundMode="outline"
+        app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
+        app:boxStrokeColor="?attr/colorPrimary"
+        app:startIconDrawable="">
+
+        <AutoCompleteTextView
+            android:id="@+id/autoCompletePcId"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:completionThreshold="1"
+            android:inputType="text"
+            android:textColor="?attr/colorOnBackground"
+            android:textColorHint="@color/hint_gray" />
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonConnect"
+        android:text="CONNECT"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        app:cornerRadius="12dp"
+        app:backgroundTint="?attr/colorSecondary"
+        android:textColor="?attr/colorOnSecondary" />
+
+    <TextView
+        android:text="Recently connected PCs:"
+        android:textStyle="bold"
+        android:textColor="?attr/colorOnBackground"
+        android:layout_marginTop="32dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerViewHistory"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp" />
+</LinearLayout>
