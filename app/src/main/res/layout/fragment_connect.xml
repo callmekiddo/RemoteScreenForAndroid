@@ -8,11 +8,13 @@
     android:padding="24dp">
 
     <TextView
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="10dp"
         android:text="Host ID"
         android:textColor="?attr/colorOnBackground"
-        android:textSize="18sp" />
+        android:textSize="24sp"
+        android:textStyle="bold" />
 
     <com.google.android.material.textfield.TextInputLayout
         android:id="@+id/pcIdInputLayout"
@@ -21,21 +23,24 @@
         android:layout_height="wrap_content"
         android:hint="Remote Host ID"
         app:boxBackgroundMode="outline"
-        app:boxCornerRadiusBottomEnd="12dp"
-        app:boxCornerRadiusBottomStart="12dp"
-        app:boxCornerRadiusTopEnd="12dp"
+        app:startIconDrawable="@drawable/ic_pc"
+        app:startIconTint="?attr/colorPrimary"
         app:boxCornerRadiusTopStart="12dp"
+        app:boxCornerRadiusTopEnd="12dp"
+        app:boxCornerRadiusBottomStart="12dp"
+        app:boxCornerRadiusBottomEnd="12dp"
         app:boxStrokeColor="?attr/colorPrimary">
 
-        <AutoCompleteTextView
+        <com.google.android.material.textfield.MaterialAutoCompleteTextView
             android:id="@+id/autoCompletePcId"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:completionThreshold="1"
             android:inputType="text"
+            android:minHeight="48dp"
             android:textColor="?attr/colorOnBackground"
             android:textColorHint="@color/colorPrimary"
-            android:textSize="30dp" />
+            android:textSize="18sp" />
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.button.MaterialButton
