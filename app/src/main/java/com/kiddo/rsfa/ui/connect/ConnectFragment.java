@@ -13,7 +13,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kiddo.rsfa.R;
-import com.kiddo.rsfa.adapter.PcHistoryAdapter;
+import com.kiddo.rsfa.adapter.connect.PcHistoryAdapter;
 import com.kiddo.rsfa.model.PcHistoryItem;
 
 import java.util.Arrays;

@@ -1,5 +1,6 @@
-package com.kiddo.rsfa.adapter;
+package com.kiddo.rsfa.adapter.connect;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.kiddo.rsfa.R;
@@ -38,10 +40,34 @@ public class PcHistoryAdapter extends RecyclerView.Adapter<PcHistoryAdapter.PcVi
     @Override
     public void onBindViewHolder(@NonNull PcViewHolder holder, int position) {
         PcHistoryItem item = pcList.get(position);
+
         holder.textPcName.setText(item.getName());
-        holder.textStatus.setText(item.isOnline() ? "Status: Online" : "Status: Offline");
-        holder.buttonConnect.setEnabled(item.isOnline());
-        holder.buttonConnect.setOnClickListener(v -> listener.onConnectClick(item));
+        String statusText = itemViewContext(holder).getString(
+                R.string.status_format,
+                itemViewContext(holder).getString(item.isOnline() ? R.string.status_online : R.string.status_offline)
+        );
+        holder.textStatus.setText(statusText);
+
+        holder.buttonConnect.setText(R.string.connect);
+        if (item.isOnline()) {
+            holder.buttonConnect.setEnabled(true);
+            holder.buttonConnect.setBackgroundTintList(ContextCompat.getColorStateList(
+                    holder.itemView.getContext(), R.color.colorSecondary
+            ));
+            holder.buttonConnect.setTextColor(Color.WHITE);
+        } else {
+            holder.buttonConnect.setEnabled(false);
+            holder.buttonConnect.setBackgroundTintList(ContextCompat.getColorStateList(
+                    holder.itemView.getContext(), R.color.gray
+            ));
+            holder.buttonConnect.setTextColor(Color.DKGRAY);
+        }
+
+        holder.buttonConnect.setOnClickListener(v -> {
+            if (item.isOnline()) {
+                listener.onConnectClick(item);
+            }
+        });
     }
 
     @Override
@@ -59,5 +85,9 @@ public class PcHistoryAdapter extends RecyclerView.Adapter<PcHistoryAdapter.PcVi
             textStatus = itemView.findViewById(R.id.textPcStatus);
             buttonConnect = itemView.findViewById(R.id.buttonConnect);
         }
+    }
+
+    private static android.content.Context itemViewContext(PcViewHolder holder) {
+        return holder.itemView.getContext();
     }
 }

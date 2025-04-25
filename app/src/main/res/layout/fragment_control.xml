@@ -1,50 +1,90 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout android:id="@+id/connectionStatusLayout"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:padding="24dp"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="horizontal"
-    android:gravity="center_vertical"
-    android:visibility="gone"
-    android:padding="16dp"
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
-
-    <ImageView
-        android:layout_width="20dp"
-        android:layout_height="20dp"
-        android:src="@drawable/ic_signal"
-        app:tint="?attr/colorOnBackground"
-        android:layout_marginEnd="8dp" />
-
-    <LinearLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="vertical">
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Connected to"
-            android:textSize="14sp"
-            android:textColor="?attr/colorOnBackground" />
-
-        <TextView
-            android:id="@+id/textPcName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="KIDDO"
-            android:textSize="16sp"
-            android:textStyle="bold"
-            android:textColor="?attr/colorOnBackground" />
-    </LinearLayout>
+    android:layout_height="match_parent"
+    android:background="@color/colorBackground">
 
     <TextView
-        android:id="@+id/textDisconnect"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Disconnect"
-        android:textSize="14sp"
-        android:textColor="?attr/colorPrimary"
-        android:padding="8dp" />
+        android:text="@string/control"
+        android:textColor="?attr/colorOnBackground"
+        android:textSize="24sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="24dp" />
+
+    <LinearLayout
+        android:id="@+id/connectionInfoLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:visibility="gone"
+        android:paddingBottom="16dp">
+
+        <ImageView
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:src="@drawable/ic_signal"
+            app:tint="?attr/colorOnBackground"
+            android:layout_marginEnd="8dp" />
+
+        <LinearLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/connected_to"
+                android:textSize="14sp"
+                android:textColor="?attr/colorOnBackground" />
+
+            <TextView
+                android:id="@+id/textPcName"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="DESKTOP"
+                android:textStyle="bold"
+                android:textSize="16sp"
+                android:textColor="?attr/colorOnBackground" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/buttonDisconnect"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/disconnect"
+            android:textSize="14sp"
+            android:textColor="?attr/colorPrimary"
+            android:padding="8dp" />
+    </LinearLayout>
+
+    <View
+        android:id="@+id/viewDivider"
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="?attr/colorOnBackground"
+        android:alpha="0.2"
+        android:layout_marginBottom="24dp" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/buttonRemote"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/remote_control"
+        android:textSize="16sp"
+        android:textColor="?attr/colorOnSecondary"
+        app:icon="@drawable/remote"
+        app:iconTint="?attr/colorOnSecondary"
+        app:iconGravity="textStart"
+        app:backgroundTint="?attr/colorSecondary"
+        app:cornerRadius="12dp"
+        android:visibility="gone" />
+
 </LinearLayout>

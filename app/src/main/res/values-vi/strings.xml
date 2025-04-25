@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+<!--    <string name="app_name">Điều khiển màn hình</string>-->
+
+<!--    &lt;!&ndash;    Control Fragment&ndash;&gt;-->
+<!--    <string name="connect">Kết nối</string>-->
+<!--    <string name="remote_id">ID máy tính</string>-->
+<!--    <string name="connect_button">Kết nối</string>-->
+<!--    <string name="recent_pcs">Máy tính đã kết nối gần đây:</string>-->
+<!--    <string name="status_format">Trạng thái: %1$s</string>-->
+<!--    <string name="status_online">Trực tuyến</string>-->
+<!--    <string name="status_offline">Ngoại tuyến</string>-->
+
+<!--    &lt;!&ndash;    Control Fragment&ndash;&gt;-->
+<!--    <string name="control">Điều khiển</string>-->
+<!--    <string name="connected_to">Đã kết nối tới</string>-->
+<!--    <string name="disconnect">Ngắt kết nối</string>-->
+<!--    <string name="remote_control">Điều khiển từ xa</string>-->
+
+<!--    &lt;!&ndash;    Layout Fragment&ndash;&gt;-->
+<!--    <string name="layout">Giao diện</string>-->
+<!--    <string name="new_layout">Giao diện mới</string>-->
+<!--    <string name="import_layout">Nhập giao diện</string>-->
+
+<!--    &lt;!&ndash;    More Fragment&ndash;&gt;-->
+<!--    <string name="more">Khác</string>-->
+<!--    <string name="account">Tài khoản</string>-->
+<!--    <string name="login_or_signup">Đăng nhập hoặc đăng ký</string>-->
+<!--    <string name="settings">Cài đặt</string>-->
+
+<!--    &lt;!&ndash;    Setting Activity&ndash;&gt;-->
+<!--    <string name="appearance">Giao diện</string>-->
+<!--    <string name="theme">Chủ đề</string>-->
+<!--    <string name="language">Ngôn ngữ</string>-->
+<!--    <string name="choose_theme">Chọn chủ đề</string>-->
+<!--    <string name="choose_language">Chọn ngôn ngữ</string>-->
+<!--    <string name="light">Sáng</string>-->
+<!--    <string name="dark">Tối</string>-->
+<!--    <string name="follow_system">Theo hệ thống</string>-->
+<!--    <string name="english">Tiếng Anh</string>-->
+<!--    <string name="vietnamese">Tiếng Việt</string>-->
+
+<!--    &lt;!&ndash;    Login and Signup Activity&ndash;&gt;-->
+<!--    <string name="login">Đăng nhập</string>-->
+<!--    <string name="sign_in">Đăng nhập</string>-->
+<!--    <string name="sign_up">Đăng ký</string>-->
+<!--    <string name="email">Email</string>-->
+<!--    <string name="password">Mật khẩu</string>-->
+<!--    <string name="confirm_password">Xác nhận mật khẩu</string>-->
+<!--    <string name="full_name">Họ và tên</string>-->
+<!--    <string name="forgot_password">Quên mật khẩu?</string>-->
+<!--    <string name="dont_have_account">Chưa có tài khoản?</string>-->
+<!--    <string name="already_have_account">Đã có tài khoản?</string>-->
+
+<!--    &lt;!&ndash;    Reset PW Activity&ndash;&gt;-->
+<!--    <string name="reset_password">Đặt lại mật khẩu</string>-->
+<!--    <string name="back_to_login">Quay về đăng nhập</string>-->
+</resources>

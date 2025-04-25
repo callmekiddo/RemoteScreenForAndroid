@@ -1,3 +1,57 @@
-<resources>
-    <string name="app_name">RemoteScreenForAndroid</string>
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <string name="app_name">RemoteScreen</string>
+
+<!--    Connect Fragment-->
+    <string name="connect">Connect</string>
+    <string name="remote_id">Remote ID</string>
+    <string name="connect_button">Connect</string>
+    <string name="recent_pcs">Recently connected PCs:</string>
+    <string name="status_format">Status: %1$s</string>
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+
+<!--    Control Fragment-->
+    <string name="control">Control</string>
+    <string name="connected_to">Connected to</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="remote_control">Remote Control</string>
+
+<!--    Layout Fragment-->
+    <string name="layout">Layout</string>
+    <string name="new_layout">New layout</string>
+    <string name="import_layout">Import layout</string>
+
+<!--    More Fragment-->
+    <string name="more">More</string>
+    <string name="account">Account</string>
+    <string name="login_or_signup">Login or signup</string>
+    <string name="settings">Settings</string>
+
+<!--    Setting Activity-->
+    <string name="appearance">Appearance</string>
+    <string name="theme">Theme</string>
+    <string name="language">Language</string>
+    <string name="choose_theme">Choose theme</string>
+    <string name="choose_language">Choose language</string>
+    <string name="light">Light</string>
+    <string name="dark">Dark</string>
+    <string name="follow_system">Follow system</string>
+    <string name="english">English</string>
+    <string name="vietnamese">Vietnamese</string>
+
+<!--    Login and Signup Activity-->
+    <string name="login">Login</string>
+    <string name="sign_in">Sign In</string>
+    <string name="sign_up">Sign Up</string>
+    <string name="email">Email</string>
+    <string name="password">Password</string>
+    <string name="confirm_password">Confirm Password</string>
+    <string name="full_name">Full Name</string>
+    <string name="forgot_password">Forgot password?</string>
+    <string name="dont_have_account">Don\'t have an account?</string>
+    <string name="already_have_account">Already have an account?</string>
+
+<!--    Reset PW Activity-->
+    <string name="reset_password">Reset Password</string>
+    <string name="back_to_login">Back to Login</string>
 </resources>

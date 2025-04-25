@@ -8,4 +8,5 @@
     <color name="colorOnPrimary">#FFFFFF</color>
     <color name="colorOnSecondary">#000000</color>
     <color name="colorOnBackground">#000000</color>
+    <color name="gray">#BDBDBD</color>
 </resources>

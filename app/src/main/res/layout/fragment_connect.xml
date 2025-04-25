@@ -10,8 +10,8 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
-        android:text="Host ID"
+        android:layout_marginBottom="14dp"
+        android:text="@string/connect"
         android:textColor="?attr/colorOnBackground"
         android:textSize="24sp"
         android:textStyle="bold" />
@@ -21,7 +21,7 @@
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Remote Host ID"
+        android:hint="@string/remote_id"
         app:boxBackgroundMode="outline"
         app:startIconDrawable="@drawable/ic_pc"
         app:startIconTint="?attr/colorPrimary"
@@ -48,7 +48,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="16dp"
-        android:text="CONNECT"
+        android:text="@string/connect"
         android:textColor="?attr/colorOnSecondary"
         app:backgroundTint="?attr/colorSecondary"
         app:cornerRadius="12dp" />
@@ -57,7 +57,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
-        android:text="Recently connected PCs:"
+        android:text="@string/recent_pcs"
         android:textColor="?attr/colorOnBackground"
         android:textStyle="bold" />
 

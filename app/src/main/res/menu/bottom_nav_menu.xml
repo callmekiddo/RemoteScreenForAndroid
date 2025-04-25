@@ -3,18 +3,18 @@
     <item
         android:id="@+id/nav_connect"
         android:icon="@drawable/connect"
-        android:title="Connect" />
+        android:title="@string/connect" />
     <item
         android:id="@+id/nav_control"
         android:icon="@drawable/control"
-        android:title="Control" />
+        android:title="@string/control" />
     <item
         android:id="@+id/nav_layout"
         android:icon="@drawable/layout"
-        android:title="Layout" />
+        android:title="@string/layout" />
     <item
         android:id="@+id/nav_more"
         android:icon="@drawable/ic_more"
-        android:title="More" />
+        android:title="@string/more" />
 </menu>
 
