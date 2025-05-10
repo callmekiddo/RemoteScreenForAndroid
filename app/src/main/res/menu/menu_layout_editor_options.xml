@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/menu_add_button" android:title="Add button"/>
+    <item android:id="@+id/menu_add_joystick" android:title="Add joystick"/>
+    <item android:id="@+id/menu_add_touchpad" android:title="Add Touchpad"/>
+    <item
+        android:id="@+id/menu_switch_mode"
+        android:title="Switch to test mode"
+        app:showAsAction="never" />
+    <item android:id="@+id/menu_save" android:title="Save"/>
+</menu>

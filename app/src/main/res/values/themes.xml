@@ -14,5 +14,7 @@
         <item name="colorOutline">@color/colorPrimary</item>
     </style>
 
+
+
     <style name="Theme.RemoteScreenForAndroid" parent="Base.Theme.RemoteScreenForAndroid" />
 </resources>

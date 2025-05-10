@@ -5,11 +5,11 @@ plugins {
 }
 
 android {
-    namespace = "com.kiddo.rsfa"
+    namespace = "com.kiddo.remotescreen"
     compileSdk = 34
 
     defaultConfig {
-        applicationId = "com.kiddo.rsfa"
+        applicationId = "com.kiddo.remotescreen"
         minSdk = 21
         targetSdk = 34
         versionCode = 1
@@ -28,12 +28,15 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_17
+        targetCompatibility = JavaVersion.VERSION_17
     }
 }
 
 dependencies {
+    implementation(libs.webrtc)
+    implementation(libs.google.flexbox)
+    implementation(libs.gson)
 
     implementation(libs.appcompat)
     implementation(libs.material)

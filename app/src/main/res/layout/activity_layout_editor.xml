@@ -5,21 +5,21 @@
     android:layout_height="match_parent"
     android:background="?attr/colorSurface">
 
-    <!-- Khu vực bố trí layout ảo -->
+    <!-- Canvas chứa các nút -->
     <FrameLayout
         android:id="@+id/layoutEditorCanvas"
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
-    <!-- Nút setup (icon duy nhất) -->
+    <!-- Nút mở menu setup -->
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/buttonSetup"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
+        android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
         android:contentDescription="Setup"
         app:srcCompat="@drawable/setup"
-        app:tint="@android:color/white"
+        app:tint="@color/colorOnBackground"
         app:backgroundTint="?attr/colorPrimary" />
 </FrameLayout>

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center_vertical"
+    android:orientation="horizontal">
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="Esc"
+        android:id="@+id/key_esc" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F1"
+        android:id="@+id/key_f1" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F2"
+        android:id="@+id/key_f2" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F3"
+        android:id="@+id/key_f3" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F4"
+        android:id="@+id/key_f4" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F5"
+        android:id="@+id/key_f5" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F6"
+        android:id="@+id/key_f6" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F7"
+        android:id="@+id/key_f7" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F8"
+        android:id="@+id/key_f8" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F9"
+        android:id="@+id/key_f9" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F10"
+        android:id="@+id/key_f10" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F11"
+        android:id="@+id/key_f11" />
+
+    <Button
+        style="@style/KeyboardKeyButton"
+        android:text="F12"
+        android:id="@+id/key_f12" />
+</LinearLayout>
