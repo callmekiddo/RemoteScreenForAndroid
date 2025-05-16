@@ -9,6 +9,9 @@ public class SessionManager {
     private static final String KEY_IS_LOGGED_IN = "is_logged_in";
     private static final String KEY_EMAIL = "email";
 
+    private static String connectedPcId;
+    private static String connectedPcName;
+
     private static SessionManager instance;
     private final SharedPreferences prefs;
 
@@ -41,5 +44,26 @@ public class SessionManager {
 
     public void clearSession() {
         prefs.edit().clear().apply();
+    }
+
+    public static void setConnectedPcId(String pcId) {
+        connectedPcId = pcId;
+    }
+
+    public static String getConnectedPcId() {
+        return connectedPcId;
+    }
+
+    public static void setConnectedPcName(String name) {
+        connectedPcName = name;
+    }
+
+    public static String getConnectedPcName() {
+        return connectedPcName;
+    }
+
+    public static void clearConnectedPc() {
+        connectedPcId = null;
+        connectedPcName = null;
     }
 }

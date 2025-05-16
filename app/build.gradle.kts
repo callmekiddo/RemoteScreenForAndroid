@@ -37,6 +37,8 @@ dependencies {
     implementation(libs.webrtc)
     implementation(libs.google.flexbox)
     implementation(libs.gson)
+    implementation (libs.okhttp3.okhttp)
+    implementation (libs.java.websocket)
 
     implementation(libs.appcompat)
     implementation(libs.material)

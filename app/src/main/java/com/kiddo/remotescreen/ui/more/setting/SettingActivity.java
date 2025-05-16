@@ -1,4 +1,4 @@
-package com.kiddo.remotescreen.ui.setting;
+package com.kiddo.remotescreen.ui.more.setting;
 
 import android.os.Bundle;
 import android.view.View;

@@ -13,7 +13,7 @@ import androidx.fragment.app.Fragment;
 import com.kiddo.remotescreen.R;
 import com.kiddo.remotescreen.auth.LoginActivity;
 import com.kiddo.remotescreen.ui.account.AccountActivity;
-import com.kiddo.remotescreen.ui.setting.SettingActivity;
+import com.kiddo.remotescreen.ui.more.setting.SettingActivity;
 import com.kiddo.remotescreen.util.SessionManager;
 
 public class MoreFragment extends Fragment {
