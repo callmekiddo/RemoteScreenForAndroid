@@ -91,6 +91,9 @@ public class DeviceRepository {
                     JSONObject json = new JSONObject(response.body().string());
                     boolean allowRemote = json.getBoolean("allowRemote");
                     String connectedAndroid = json.optString("connectedAndroid", null);
+                    if ("null".equalsIgnoreCase(connectedAndroid)) {
+                        connectedAndroid = null;
+                    }
                     callback.onSuccess(new DeviceStatus(allowRemote, connectedAndroid));
                 } catch (JSONException e) {
                     callback.onError("Invalid JSON: " + e.getMessage());
@@ -123,7 +126,6 @@ public class DeviceRepository {
             }
         });
     }
-
 
     public interface DeviceStatusCallback {
         void onSuccess(DeviceStatus status);

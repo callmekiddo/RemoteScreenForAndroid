@@ -64,76 +64,89 @@ public class ConnectFragment extends Fragment {
             DeviceRepository.getDeviceStatus(pcId, new DeviceRepository.DeviceStatusCallback() {
                 @Override
                 public void onSuccess(DeviceStatus status) {
-                    if (!Boolean.TRUE.equals(status.getAllowRemote())) {
-                        Toast.makeText(requireContext(), "Remote access is disabled on PC", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    PasswordDialog dialog = PasswordDialog.newInstance(pcId, new PasswordDialog.PasswordDialogListener() {
-                        @Override
-                        public void onPasswordConfirmed(String pcId, String password) {
-                            String androidName = android.os.Build.MODEL;
-
-                            DeviceRepository.connectToPc(pcId, password, androidName, new DeviceRepository.Callback() {
-                                @Override
-                                public void onSuccess(String deviceId, String deviceName) {
-                                    requireActivity().runOnUiThread(() -> {
-                                        Toast.makeText(requireContext(), "Connected!", Toast.LENGTH_SHORT).show();
-
-                                        SessionManager.setConnectedPcId(deviceId);
-                                        SessionManager.setConnectedPcName(deviceName);
-
-                                        WebRtcManager webrtc = WebRtcManager.getInstance();
-                                        webrtc.init(requireContext());
-
-                                        String signalingUrl = SIGNALING_URL_BASE + androidName;
-                                        SignalingClient signalingClient = SignalingClient.getInstance(new SignalingObserver() {
-                                            @Override
-                                            public void onConnected() {
-                                                Log.d("ConnectFragment", "✅ Signaling connected");
-                                            }
-
-                                            @Override
-                                            public void onDisconnected() {
-                                                Log.d("ConnectFragment", "🔌 Signaling disconnected");
-                                            }
-
-                                            @Override
-                                            public void onOfferReceived(String from, String sdp) {}
-
-                                            @Override
-                                            public void onAnswerReceived(String from, String sdp) {}
-
-                                            @Override
-                                            public void onIceCandidateReceived(String from, JSONObject json) {}
-                                        });
-
-                                        if (!signalingClient.isConnected()) {
-                                            signalingClient.connect(signalingUrl);
-                                        }
-
-                                        requireActivity().getSupportFragmentManager()
-                                                .beginTransaction()
-                                                .replace(R.id.fragment_container, new ControlFragment())
-                                                .addToBackStack(null)
-                                                .commit();
-
-                                        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
-                                        bottomNav.setSelectedItemId(R.id.nav_control);
-                                    });
-                                }
-
-                                @Override
-                                public void onError(String error) {
-                                    requireActivity().runOnUiThread(() ->
-                                            Toast.makeText(requireContext(), "Connection failed: " + error, Toast.LENGTH_SHORT).show()
-                                    );
-                                }
-                            });
+                    requireActivity().runOnUiThread(() -> {
+                        if (!Boolean.TRUE.equals(status.getAllowRemote())) {
+                            Toast.makeText(requireContext(), "Remote access is disabled on PC", Toast.LENGTH_SHORT).show();
+                            return;
                         }
-                    });
 
-                    dialog.show(getParentFragmentManager(), "PasswordDialog");
+                        String connected = status.getConnectedAndroid();
+                        if (connected != null && !connected.equalsIgnoreCase("null") && !connected.isEmpty()) {
+                            String currentDevice = android.os.Build.MODEL;
+                            if (!currentDevice.equals(connected)) {
+                                Toast.makeText(requireContext(),
+                                        "This PC is currently connected to another Android device: " + connected,
+                                        Toast.LENGTH_LONG).show();
+                                return;
+                            }
+                        }
+
+                        PasswordDialog dialog = PasswordDialog.newInstance(pcId, new PasswordDialog.PasswordDialogListener() {
+                            @Override
+                            public void onPasswordConfirmed(String pcId, String password) {
+                                String androidName = android.os.Build.MODEL;
+
+                                DeviceRepository.connectToPc(pcId, password, androidName, new DeviceRepository.Callback() {
+                                    @Override
+                                    public void onSuccess(String deviceId, String deviceName) {
+                                        requireActivity().runOnUiThread(() -> {
+                                            Toast.makeText(requireContext(), "Connected!", Toast.LENGTH_SHORT).show();
+
+                                            SessionManager.setConnectedPcId(deviceId);
+                                            SessionManager.setConnectedPcName(deviceName);
+
+                                            WebRtcManager webrtc = WebRtcManager.getInstance();
+                                            webrtc.init(requireContext());
+
+                                            String signalingUrl = SIGNALING_URL_BASE + androidName;
+                                            SignalingClient signalingClient = SignalingClient.getInstance(new SignalingObserver() {
+                                                @Override
+                                                public void onConnected() {
+                                                    Log.d("ConnectFragment", "✅ Signaling connected");
+                                                }
+
+                                                @Override
+                                                public void onDisconnected() {
+                                                    Log.d("ConnectFragment", "🔌 Signaling disconnected");
+                                                }
+
+                                                @Override
+                                                public void onOfferReceived(String from, String sdp) {}
+
+                                                @Override
+                                                public void onAnswerReceived(String from, String sdp) {}
+
+                                                @Override
+                                                public void onIceCandidateReceived(String from, JSONObject json) {}
+                                            });
+
+                                            if (!signalingClient.isConnected()) {
+                                                signalingClient.connect(signalingUrl);
+                                            }
+
+                                            requireActivity().getSupportFragmentManager()
+                                                    .beginTransaction()
+                                                    .replace(R.id.fragment_container, new ControlFragment())
+                                                    .addToBackStack(null)
+                                                    .commit();
+
+                                            BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
+                                            bottomNav.setSelectedItemId(R.id.nav_control);
+                                        });
+                                    }
+
+                                    @Override
+                                    public void onError(String error) {
+                                        requireActivity().runOnUiThread(() ->
+                                                Toast.makeText(requireContext(), "Connection failed: " + error, Toast.LENGTH_SHORT).show()
+                                        );
+                                    }
+                                });
+                            }
+                        });
+
+                        dialog.show(getParentFragmentManager(), "PasswordDialog");
+                    });
                 }
 
                 @Override
