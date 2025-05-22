@@ -84,7 +84,9 @@ public class ConnectFragment extends Fragment {
         DeviceRepository.getDeviceStatus(pcId, new DeviceRepository.DeviceStatusCallback() {
             @Override
             public void onSuccess(DeviceStatus status) {
-                requireActivity().runOnUiThread(() -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded()) return;
+
                     if (!Boolean.TRUE.equals(status.getAllowRemote())) {
                         Toast.makeText(requireContext(), "Remote access is disabled on PC", Toast.LENGTH_SHORT).show();
                         return;
@@ -108,9 +110,10 @@ public class ConnectFragment extends Fragment {
 
             @Override
             public void onError(String error) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Can't find PC", Toast.LENGTH_SHORT).show()
-                );
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded()) return; // ✅ Thêm dòng này
+                    Toast.makeText(requireContext(), "Can't find PC", Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
@@ -121,7 +124,8 @@ public class ConnectFragment extends Fragment {
         DeviceRepository.connectToPc(pcId, password, androidName, new DeviceRepository.Callback() {
             @Override
             public void onSuccess(String deviceId, String deviceName) {
-                requireActivity().runOnUiThread(() -> {
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded()) return;
                     Toast.makeText(requireContext(), "Connected!", Toast.LENGTH_SHORT).show();
 
                     SessionManager.setConnectedPcId(deviceId);
@@ -174,9 +178,10 @@ public class ConnectFragment extends Fragment {
 
             @Override
             public void onError(String error) {
-                requireActivity().runOnUiThread(() ->
-                        Toast.makeText(requireContext(), "Connection failed: " + error, Toast.LENGTH_SHORT).show()
-                );
+                new Handler(Looper.getMainLooper()).post(() -> {
+                    if (!isAdded()) return;
+                    Toast.makeText(requireContext(), "Connection failed: " + error, Toast.LENGTH_SHORT).show();
+                });
             }
         });
     }
@@ -215,7 +220,10 @@ public class ConnectFragment extends Fragment {
                             " → status=" + resultStatus);
 
                     item.setStatus(resultStatus);
-                    requireActivity().runOnUiThread(adapter::notifyDataSetChanged);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!isAdded()) return;
+                        adapter.notifyDataSetChanged();
+                    });
                 }
 
                 @Override

@@ -12,6 +12,7 @@ import com.kiddo.remotescreen.ui.connect.ConnectFragment;
 import com.kiddo.remotescreen.ui.control.ControlFragment;
 import com.kiddo.remotescreen.ui.layout.LayoutGrid;
 import com.kiddo.remotescreen.ui.more.MoreFragment;
+import com.kiddo.remotescreen.util.SessionManager;
 
 public class MainActivity extends AppCompatActivity{
 
@@ -20,8 +21,14 @@ public class MainActivity extends AppCompatActivity{
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
 
+        // Xoá session nếu token hết hạn, nhưng KHÔNG chuyển màn hình
+        SessionManager session = SessionManager.getInstance(this);
+        if (!session.isLoggedIn()) {
+            session.clearSession(); // Xóa token, thông tin user
+        }
+
+        setContentView(R.layout.activity_main);
         bottomNavigationView = findViewById(R.id.bottom_nav);
 
         // Gắn fragment mặc định (Connect)
@@ -50,9 +57,9 @@ public class MainActivity extends AppCompatActivity{
             return false;
         });
 
-        // Ẩn/hiện bottom nav khi mở bàn phím
         setupKeyboardVisibilityHandler();
     }
+
 
     private void loadFragment(Fragment fragment) {
         getSupportFragmentManager()
