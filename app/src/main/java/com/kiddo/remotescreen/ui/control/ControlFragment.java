@@ -3,6 +3,7 @@ package com.kiddo.remotescreen.ui.control;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.material.button.MaterialButton;
 import com.kiddo.remotescreen.R;
+import com.kiddo.remotescreen.model.DeviceStatus;
 import com.kiddo.remotescreen.repository.DeviceRepository;
 import com.kiddo.remotescreen.ui.control.remote.RemoteActivity;
 import com.kiddo.remotescreen.util.ConnectCooldownManager;
@@ -25,6 +27,10 @@ import com.kiddo.remotescreen.util.signaling.SignalingClient;
 import com.kiddo.remotescreen.util.webrtc.WebRtcManager;
 
 public class ControlFragment extends Fragment {
+
+    private Handler statusHandler;
+    private Runnable statusRunnable;
+    private static final long STATUS_INTERVAL_MS = 1000;
 
     public ControlFragment() {}
 
@@ -53,6 +59,8 @@ public class ControlFragment extends Fragment {
             textPcName.setText(pcName != null && !pcName.isEmpty() ? pcName : pcId);
             buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary));
             buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnPrimary));
+
+            startAutoStatusCheck(pcId, connectionLayout, divider, buttonRemote);
         } else {
             connectionLayout.setVisibility(View.GONE);
             divider.setVisibility(View.GONE);
@@ -67,39 +75,7 @@ public class ControlFragment extends Fragment {
                 Toast.makeText(getContext(), "No device to disconnect", Toast.LENGTH_SHORT).show();
                 return;
             }
-
-            DeviceRepository.disconnectAndroid(pcId, new DeviceRepository.SimpleCallback() {
-                @Override
-                public void onSuccess() {
-                    requireActivity().runOnUiThread(() -> {
-                        Toast.makeText(getContext(), "Disconnected from PC", Toast.LENGTH_SHORT).show();
-
-                        // ❌ Xoá session
-                        SessionManager.clearConnectedPc();
-
-                        // ❌ Ngắt signaling + WebRTC
-                        SignalingClient.getInstance().close();
-                        WebRtcManager.getInstance().disconnect();
-
-                        // ❌ Cập nhật giao diện
-                        connectionLayout.setVisibility(View.GONE);
-                        divider.setVisibility(View.GONE);
-                        buttonRemote.setEnabled(false);
-                        buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
-                        buttonRemote.setTextColor(Color.DKGRAY);
-
-                        // ✅ Thiết lập cooldown
-                        ConnectCooldownManager.setCooldown();
-                    });
-                }
-
-                @Override
-                public void onError(String error) {
-                    requireActivity().runOnUiThread(() ->
-                            Toast.makeText(getContext(), "Failed to disconnect: " + error, Toast.LENGTH_LONG).show()
-                    );
-                }
-            });
+            disconnectFromPc(pcId, connectionLayout, divider, buttonRemote);
         });
 
         buttonRemote.setOnClickListener(v -> {
@@ -119,6 +95,121 @@ public class ControlFragment extends Fragment {
 
             Intent intent = new Intent(requireContext(), RemoteActivity.class);
             startActivity(intent);
+        });
+    }
+
+    private void startAutoStatusCheck(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+        stopAutoStatusCheck();
+
+        statusHandler = new Handler();
+        statusRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (!isAdded()) return;
+
+                DeviceRepository.getDeviceStatus(pcId, new DeviceRepository.DeviceStatusCallback() {
+                    @Override
+                    public void onSuccess(DeviceStatus status) {
+                        if (!status.getAllowRemote()) {
+                            autoDisconnect(pcId, connectionLayout, divider, buttonRemote);
+                            stopAutoStatusCheck();
+                        } else {
+                            // ✅ Sử dụng lại statusRunnable đúng cách
+                            statusHandler.postDelayed(statusRunnable, STATUS_INTERVAL_MS);
+                        }
+                    }
+
+                    @Override
+                    public void onError(String error) {
+                        // Retry dù có lỗi
+                        statusHandler.postDelayed(statusRunnable, STATUS_INTERVAL_MS);
+                    }
+                });
+            }
+        };
+
+        // ✅ Khởi động lần đầu
+        statusHandler.post(statusRunnable);
+    }
+
+
+    private void stopAutoStatusCheck() {
+        if (statusHandler != null && statusRunnable != null) {
+            statusHandler.removeCallbacks(statusRunnable);
+        }
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        stopAutoStatusCheck();
+    }
+
+    private void autoDisconnect(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+        DeviceRepository.disconnectAndroid(pcId, new DeviceRepository.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+
+                    Toast.makeText(getContext(), "Remote access disabled. Disconnected automatically.", Toast.LENGTH_SHORT).show();
+
+                    SessionManager.clearConnectedPc();
+                    SignalingClient.getInstance().close();
+                    WebRtcManager.getInstance().disconnect();
+
+                    connectionLayout.setVisibility(View.GONE);
+                    divider.setVisibility(View.GONE);
+                    buttonRemote.setEnabled(false);
+                    buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
+                    buttonRemote.setTextColor(Color.DKGRAY);
+
+                    ConnectCooldownManager.setCooldown();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Auto-disconnect failed: " + error, Toast.LENGTH_LONG).show()
+                );
+            }
+        });
+    }
+
+    private void disconnectFromPc(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+        DeviceRepository.disconnectAndroid(pcId, new DeviceRepository.SimpleCallback() {
+            @Override
+            public void onSuccess() {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() -> {
+                    if (!isAdded()) return;
+
+                    Toast.makeText(getContext(), "Disconnected from PC", Toast.LENGTH_SHORT).show();
+
+                    SessionManager.clearConnectedPc();
+                    SignalingClient.getInstance().close();
+                    WebRtcManager.getInstance().disconnect();
+
+                    connectionLayout.setVisibility(View.GONE);
+                    divider.setVisibility(View.GONE);
+                    buttonRemote.setEnabled(false);
+                    buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
+                    buttonRemote.setTextColor(Color.DKGRAY);
+
+                    ConnectCooldownManager.setCooldown();
+                });
+            }
+
+            @Override
+            public void onError(String error) {
+                if (!isAdded()) return;
+                requireActivity().runOnUiThread(() ->
+                        Toast.makeText(getContext(), "Failed to disconnect: " + error, Toast.LENGTH_LONG).show()
+                );
+            }
         });
     }
 }
