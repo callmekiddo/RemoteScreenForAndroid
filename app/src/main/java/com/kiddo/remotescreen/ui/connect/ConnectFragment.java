@@ -187,12 +187,16 @@ public class ConnectFragment extends Fragment {
     }
 
     private void setupPcHistory() {
+        if (!isAdded()) return;
+
         List<PcHistoryItem> historyList = PcHistoryStorage.load(requireContext());
         boolean cooldown = ConnectCooldownManager.isCooldownActive();
+
         PcHistoryAdapter adapter = new PcHistoryAdapter(historyList, item -> {
             autoCompletePcId.setText(item.getId());
             showPasswordDialogForPcId(item.getId());
         }, cooldown);
+
         recyclerViewHistory.setAdapter(adapter);
         refreshPcHistoryStatus(historyList, adapter);
         startAutoRefreshStatus(historyList, adapter);
