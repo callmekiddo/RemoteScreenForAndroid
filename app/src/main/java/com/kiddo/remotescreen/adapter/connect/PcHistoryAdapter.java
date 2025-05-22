@@ -1,6 +1,7 @@
 package com.kiddo.remotescreen.adapter.connect;
 
 import android.graphics.Color;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,10 +25,12 @@ public class PcHistoryAdapter extends RecyclerView.Adapter<PcHistoryAdapter.PcVi
 
     private final List<PcHistoryItem> pcList;
     private final OnConnectClickListener listener;
+    private final boolean isCooldown;
 
-    public PcHistoryAdapter(List<PcHistoryItem> pcList, OnConnectClickListener listener) {
+    public PcHistoryAdapter(List<PcHistoryItem> pcList, OnConnectClickListener listener, boolean isCooldown) {
         this.pcList = pcList;
         this.listener = listener;
+        this.isCooldown = isCooldown;
     }
 
     @NonNull
@@ -41,30 +44,43 @@ public class PcHistoryAdapter extends RecyclerView.Adapter<PcHistoryAdapter.PcVi
     public void onBindViewHolder(@NonNull PcViewHolder holder, int position) {
         PcHistoryItem item = pcList.get(position);
 
-        holder.textPcName.setText(item.getName());
-        String statusText = itemViewContext(holder).getString(
-                R.string.status_format,
-                itemViewContext(holder).getString(item.isOnline() ? R.string.status_online : R.string.status_offline)
-        );
-        holder.textStatus.setText(statusText);
+        Log.d("PcHistoryAdapter", "Bind item: ID=" + item.getId() + ", Name=" + item.getName() + ", Status=" + item.getStatus());
 
-        holder.buttonConnect.setText(R.string.connect);
-        if (item.isOnline()) {
-            holder.buttonConnect.setEnabled(true);
-            holder.buttonConnect.setBackgroundTintList(ContextCompat.getColorStateList(
-                    holder.itemView.getContext(), R.color.colorSecondary
-            ));
-            holder.buttonConnect.setTextColor(Color.WHITE);
-        } else {
-            holder.buttonConnect.setEnabled(false);
-            holder.buttonConnect.setBackgroundTintList(ContextCompat.getColorStateList(
-                    holder.itemView.getContext(), R.color.gray
-            ));
-            holder.buttonConnect.setTextColor(Color.DKGRAY);
+        holder.textPcName.setText(item.getName());
+
+        String statusText;
+        int statusColor;
+
+        switch (item.getStatus()) {
+            case "enable":
+                statusText = "Available";
+                statusColor = R.color.green;
+                holder.buttonConnect.setEnabled(!isCooldown);
+                break;
+            case "busy":
+                statusText = "Busy";
+                statusColor = R.color.red;
+                holder.buttonConnect.setEnabled(false);
+                break;
+            case "disable":
+            default:
+                statusText = "Remote disabled";
+                statusColor = R.color.red;
+                holder.buttonConnect.setEnabled(false);
+                break;
         }
 
+        holder.textStatus.setText("Status: " + statusText);
+        holder.textStatus.setTextColor(ContextCompat.getColor(holder.itemView.getContext(), statusColor));
+
+        holder.buttonConnect.setText(R.string.connect);
+        holder.buttonConnect.setBackgroundTintList(ContextCompat.getColorStateList(
+                holder.itemView.getContext(), holder.buttonConnect.isEnabled() ? R.color.colorSecondary : R.color.gray
+        ));
+        holder.buttonConnect.setTextColor(holder.buttonConnect.isEnabled() ? Color.WHITE : Color.DKGRAY);
+
         holder.buttonConnect.setOnClickListener(v -> {
-            if (item.isOnline()) {
+            if (holder.buttonConnect.isEnabled()) {
                 listener.onConnectClick(item);
             }
         });
@@ -85,9 +101,5 @@ public class PcHistoryAdapter extends RecyclerView.Adapter<PcHistoryAdapter.PcVi
             textStatus = itemView.findViewById(R.id.textPcStatus);
             buttonConnect = itemView.findViewById(R.id.buttonConnect);
         }
-    }
-
-    private static android.content.Context itemViewContext(PcViewHolder holder) {
-        return holder.itemView.getContext();
     }
 }

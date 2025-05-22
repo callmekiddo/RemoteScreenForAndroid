@@ -8,4 +8,8 @@
     <color name="colorOnPrimary">#000000</color>
     <color name="colorOnSecondary">#000000</color>
     <color name="colorOnBackground">#FFFFFF</color>
+
+    <color name="green">#4CAF50</color>
+    <color name="red">#FF0000</color>
+    <color name="colorOverlay">#1AFFFFFF</color>
 </resources>

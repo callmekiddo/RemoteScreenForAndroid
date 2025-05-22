@@ -1,19 +1,38 @@
 package com.kiddo.remotescreen.model;
 
 public class PcHistoryItem {
-    private final String name;
-    private final boolean isOnline;
+    private String id;
+    private String name;
+    private String status;
 
-    public PcHistoryItem(String name, boolean isOnline) {
+    public PcHistoryItem(String id, String name, String status) {
+        this.id = id;
         this.name = name;
-        this.isOnline = isOnline;
+        this.status = status;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
         return name;
     }
 
-    public boolean isOnline() {
-        return isOnline;
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
+

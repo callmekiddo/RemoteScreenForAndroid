@@ -3,10 +3,17 @@ package com.kiddo.remotescreen.ui.control.remote;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
+import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kiddo.remotescreen.R;
+import com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardInputHandler;
+import com.kiddo.remotescreen.ui.control.remote.mouse.MouseInputHandler;
 import com.kiddo.remotescreen.util.SessionManager;
 import com.kiddo.remotescreen.util.signaling.SignalingClient;
 import com.kiddo.remotescreen.util.signaling.SignalingObserver;
@@ -24,6 +31,11 @@ public class RemoteActivity extends AppCompatActivity {
 
     private SurfaceViewRenderer remoteView;
     private WebRtcManager webRtcManager;
+
+    private ImageView handlePanel;
+    private LinearLayout controlPanel;
+    private ImageView btnKeyboard;
+    private EditText hiddenInput;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +60,6 @@ public class RemoteActivity extends AppCompatActivity {
         remoteView.init(webRtcManager.getEglBaseContext(), null);
         webRtcManager.setRemoteRenderer(remoteView);
 
-        // Gán lại observer cho signaling
         SignalingClient signaling = SignalingClient.getInstance();
         signaling.setObserver(new SignalingObserver() {
             @Override
@@ -78,7 +89,6 @@ public class RemoteActivity extends AppCompatActivity {
             @Override public void onAnswerReceived(String from, String sdp) {}
         });
 
-        // Gửi HELLO nếu chưa có kết nối P2P
         if (!webRtcManager.isPeerConnected() && !webRtcManager.hasStartedFlow()) {
             signaling.sendHello(android.os.Build.MODEL);
             Log.d(TAG, "📤 Gửi HELLO từ RemoteActivity: " + android.os.Build.MODEL);
@@ -86,7 +96,6 @@ public class RemoteActivity extends AppCompatActivity {
             Log.d(TAG, "✅ Đã có kết nối P2P — không gửi HELLO");
         }
 
-        // Nếu đã có video track thì gắn lại
         VideoTrack track = webRtcManager.getRemoteVideoTrack();
         if (track != null) {
             Log.d(TAG, "✅ Gắn lại video track");
@@ -94,6 +103,51 @@ public class RemoteActivity extends AppCompatActivity {
         }
 
         Log.d(TAG, "🎬 Vào RemoteActivity với PC ID: " + SessionManager.getConnectedPcId());
+
+        // --- Toggle control panel + move handle ---
+        handlePanel = findViewById(R.id.handle_panel);
+        controlPanel = findViewById(R.id.control_panel);
+        btnKeyboard = findViewById(R.id.btn_keyboard);
+        hiddenInput = findViewById(R.id.hidden_input);
+
+        handlePanel.setOnClickListener(v -> {
+            boolean isVisible = controlPanel.getVisibility() == View.VISIBLE;
+
+            controlPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+            handlePanel.setImageResource(isVisible ? R.drawable.ic_down : R.drawable.ic_up);
+
+            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) handlePanel.getLayoutParams();
+            if (isVisible) {
+                params.topMargin = 0;
+            } else {
+                controlPanel.post(() -> {
+                    params.topMargin = controlPanel.getHeight();
+                    handlePanel.setLayoutParams(params);
+                });
+                return;
+            }
+            handlePanel.setLayoutParams(params);
+        });
+
+        // --- Show soft keyboard when btnKeyboard is pressed ---
+        btnKeyboard.setOnClickListener(v -> {
+            hiddenInput.setVisibility(View.VISIBLE);
+            hiddenInput.requestFocus();
+
+            hiddenInput.postDelayed(() -> {
+                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+                if (imm != null) {
+                    imm.showSoftInput(hiddenInput, InputMethodManager.SHOW_IMPLICIT);
+                }
+            }, 100);
+        });
+
+        MouseInputHandler mouseHandler = new MouseInputHandler(webRtcManager);
+        remoteView.setOnTouchListener(mouseHandler);
+
+        KeyboardInputHandler keyboardHandler = new KeyboardInputHandler(webRtcManager);
+        keyboardHandler.attach(hiddenInput);
+
     }
 
     @Override

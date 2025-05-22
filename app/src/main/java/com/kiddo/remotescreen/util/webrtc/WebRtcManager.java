@@ -7,6 +7,8 @@ import com.kiddo.remotescreen.util.signaling.SignalingClient;
 
 import org.webrtc.*;
 
+import java.nio.ByteBuffer;
+import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
@@ -29,6 +31,9 @@ public class WebRtcManager {
 
     private static final int MAX_ICE_CANDIDATES = 20;
     private final Set<String> sentCandidates = new HashSet<>();
+
+    private DataChannel dataChannel;
+    private boolean dataChannelReady = false;
 
     private WebRtcManager() {}
 
@@ -69,9 +74,6 @@ public class WebRtcManager {
 
     public void setRemoteRenderer(SurfaceViewRenderer renderer) {
         this.remoteRenderer = renderer;
-        if (peerConnection != null) {
-            Log.d(TAG, "✅ Rebinding remote renderer if video track exists");
-        }
     }
 
     public void clearRemoteRenderer() {
@@ -85,8 +87,6 @@ public class WebRtcManager {
             signalingClient.sendHello(androidName);
             Log.d(TAG, "📤 Sent HELLO");
             hasStartedFlow = true;
-        } else {
-            Log.d(TAG, "⚠️ Skipped HELLO — already sent or not connected");
         }
     }
 
@@ -115,8 +115,6 @@ public class WebRtcManager {
                     sentCandidates.add(candidate.sdp);
                     signalingClient.sendIceCandidate(remoteDeviceId, candidate);
                     Log.d(TAG, "📤 Sent ICE candidate: " + candidate.sdp);
-                } else {
-                    Log.d(TAG, "⛔ Skipped ICE candidate: " + candidate.sdp);
                 }
             }
 
@@ -124,7 +122,6 @@ public class WebRtcManager {
             public void onTrack(RtpTransceiver transceiver) {
                 MediaStreamTrack track = transceiver.getReceiver().track();
                 if (track instanceof VideoTrack && remoteRenderer != null) {
-                    Log.d(TAG, "🎥 Received video track");
                     VideoTrack videoTrack = (VideoTrack) track;
                     videoTrack.setEnabled(true);
                     videoTrack.addSink(remoteRenderer);
@@ -134,13 +131,20 @@ public class WebRtcManager {
             @Override
             public void onConnectionChange(PeerConnection.PeerConnectionState newState) {
                 Log.d(TAG, "🔄 PeerConnection state changed: " + newState);
-                if (newState == PeerConnection.PeerConnectionState.CONNECTED) {
-                    peerConnected = true;
-                } else if (newState == PeerConnection.PeerConnectionState.DISCONNECTED ||
-                        newState == PeerConnection.PeerConnectionState.FAILED ||
-                        newState == PeerConnection.PeerConnectionState.CLOSED) {
-                    peerConnected = false;
-                }
+                peerConnected = (newState == PeerConnection.PeerConnectionState.CONNECTED);
+            }
+
+            @Override
+            public void onDataChannel(DataChannel dc) {
+                dataChannel = dc;
+                dataChannel.registerObserver(new DataChannel.Observer() {
+                    @Override public void onBufferedAmountChange(long l) {}
+                    @Override public void onStateChange() {
+                        dataChannelReady = (dataChannel.state() == DataChannel.State.OPEN);
+                        Log.d(TAG, "🔌 DataChannel state: " + dataChannel.state());
+                    }
+                    @Override public void onMessage(DataChannel.Buffer buffer) {}
+                });
             }
 
             @Override public void onSignalingChange(PeerConnection.SignalingState newState) {}
@@ -149,16 +153,40 @@ public class WebRtcManager {
             @Override public void onIceCandidatesRemoved(IceCandidate[] candidates) {}
             @Override public void onAddStream(MediaStream stream) {}
             @Override public void onRemoveStream(MediaStream stream) {}
-            @Override public void onDataChannel(DataChannel dc) {}
             @Override public void onRenegotiationNeeded() {}
             @Override public void onIceConnectionReceivingChange(boolean b) {}
         });
 
-        peerConnection.createDataChannel("dummy", new DataChannel.Init());
+        peerConnection.createDataChannel("keyboard", new DataChannel.Init());
     }
 
     public PeerConnection getPeerConnection() {
         return peerConnection;
+    }
+
+    public boolean isDataChannelReady() {
+        return dataChannelReady;
+    }
+
+    public void sendKey(int keyCode, String action) {
+        if (!dataChannelReady || dataChannel == null) return;
+        String msg = "keycode:" + keyCode + "," + action;
+        ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8));
+        dataChannel.send(new DataChannel.Buffer(buffer, false));
+        Log.d(TAG, "Sent keycode: " + msg);
+    }
+
+    public void sendKeyInstant(int keyCode) {
+        sendKey(keyCode, "press");
+        sendKey(keyCode, "release");
+    }
+
+    public void sendMouseCommand(int x, int y, String action) {
+        if (!dataChannelReady || dataChannel == null) return;
+        String msg = String.format("mouse:%d,%d,%s", x, y, action);
+        ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8));
+        dataChannel.send(new DataChannel.Buffer(buffer, false));
+        Log.d(TAG, "Sent mouse command: " + msg);
     }
 
     public void setRemoteSdp(SessionDescription sdp, Runnable onSuccess) {
@@ -182,7 +210,6 @@ public class WebRtcManager {
                         Log.d(TAG, "✅ Local SDP set");
                     }
                 }, answer);
-
                 signalingClient.sendAnswer(remoteDeviceId, answer.description);
                 Log.d(TAG, "📤 Sent ANSWER");
             }
@@ -202,6 +229,8 @@ public class WebRtcManager {
             peerConnection.dispose();
             peerConnection = null;
         }
+        dataChannelReady = false;
+        dataChannel = null;
         peerConnected = false;
         hasStartedFlow = false;
         sentCandidates.clear();
@@ -232,7 +261,6 @@ public class WebRtcManager {
 
     public VideoTrack getRemoteVideoTrack() {
         if (peerConnection == null) return null;
-
         for (RtpTransceiver transceiver : peerConnection.getTransceivers()) {
             MediaStreamTrack track = transceiver.getReceiver().track();
             if (track instanceof VideoTrack) {
