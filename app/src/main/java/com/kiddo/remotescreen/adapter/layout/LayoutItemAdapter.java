@@ -43,7 +43,7 @@ public class LayoutItemAdapter extends RecyclerView.Adapter<LayoutItemAdapter.La
 
     @Override
     public void onBindViewHolder(@NonNull LayoutViewHolder holder, int position) {
-        LayoutItem item = layoutList.get(position); // ✅ Bổ sung dòng này
+        LayoutItem item = layoutList.get(position);
 
         holder.name.setText(item.getName());
 

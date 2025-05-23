@@ -61,7 +61,7 @@ public class WebRtcManager {
                 .createPeerConnectionFactory();
 
         initialized = true;
-        Log.d(TAG, "✅ WebRtcManager initialized");
+        Log.d(TAG, "WebRtcManager initialized");
     }
 
     public boolean isInitialized() {
@@ -85,7 +85,7 @@ public class WebRtcManager {
     public void startRemoteFlow(String androidName) {
         if (!hasStartedFlow && signalingClient != null && signalingClient.isConnected()) {
             signalingClient.sendHello(androidName);
-            Log.d(TAG, "📤 Sent HELLO");
+            Log.d(TAG, "Sent HELLO");
             hasStartedFlow = true;
         }
     }
@@ -114,7 +114,7 @@ public class WebRtcManager {
 
                     sentCandidates.add(candidate.sdp);
                     signalingClient.sendIceCandidate(remoteDeviceId, candidate);
-                    Log.d(TAG, "📤 Sent ICE candidate: " + candidate.sdp);
+                    Log.d(TAG, "Sent ICE candidate: " + candidate.sdp);
                 }
             }
 
@@ -130,7 +130,7 @@ public class WebRtcManager {
 
             @Override
             public void onConnectionChange(PeerConnection.PeerConnectionState newState) {
-                Log.d(TAG, "🔄 PeerConnection state changed: " + newState);
+                Log.d(TAG, "PeerConnection state changed: " + newState);
                 peerConnected = (newState == PeerConnection.PeerConnectionState.CONNECTED);
             }
 
@@ -141,7 +141,7 @@ public class WebRtcManager {
                     @Override public void onBufferedAmountChange(long l) {}
                     @Override public void onStateChange() {
                         dataChannelReady = (dataChannel.state() == DataChannel.State.OPEN);
-                        Log.d(TAG, "🔌 DataChannel state: " + dataChannel.state());
+                        Log.d(TAG, "DataChannel state: " + dataChannel.state());
                     }
                     @Override public void onMessage(DataChannel.Buffer buffer) {}
                 });
@@ -207,11 +207,11 @@ public class WebRtcManager {
                 peerConnection.setLocalDescription(new SdpObserverAdapter() {
                     @Override
                     public void onSetSuccess() {
-                        Log.d(TAG, "✅ Local SDP set");
+                        Log.d(TAG, "Local SDP set");
                     }
                 }, answer);
                 signalingClient.sendAnswer(remoteDeviceId, answer.description);
-                Log.d(TAG, "📤 Sent ANSWER");
+                Log.d(TAG, "Sent ANSWER");
             }
         }, new MediaConstraints());
     }
@@ -223,7 +223,7 @@ public class WebRtcManager {
     }
 
     public void disconnect() {
-        Log.d(TAG, "🧹 Cleaning up WebRtcManager (disconnect only)");
+        Log.d(TAG, "Cleaning up WebRtcManager (disconnect only)");
         if (peerConnection != null) {
             peerConnection.close();
             peerConnection.dispose();
@@ -238,7 +238,7 @@ public class WebRtcManager {
     }
 
     public void reset() {
-        Log.d(TAG, "🧨 Full WebRtcManager reset");
+        Log.d(TAG, "Full WebRtcManager reset");
         disconnect();
         if (factory != null) {
             factory.dispose();

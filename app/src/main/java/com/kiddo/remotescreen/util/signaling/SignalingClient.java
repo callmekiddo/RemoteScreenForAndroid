@@ -52,13 +52,13 @@ public class SignalingClient {
     }
 
     public void connect(String url) {
-        Log.d(TAG, "📡 Connecting to WebSocket URL: " + url);
+        Log.d(TAG, "Connecting to WebSocket URL: " + url);
         Request request = new Request.Builder().url(url).build();
         webSocket = client.newWebSocket(request, new WebSocketListener() {
             @Override
             public void onOpen(@NonNull WebSocket webSocket, @NonNull Response response) {
                 connected = true;
-                Log.d(TAG, "✅ Connected to signaling server");
+                Log.d(TAG, "Connected to signaling server");
                 listener.onConnected();
             }
 
@@ -77,30 +77,30 @@ public class SignalingClient {
                             listener.onAnswerReceived(fromUser, json.getString("sdp"));
                         }
                         case "ice_candidate" -> listener.onIceCandidateReceived(fromUser, json.getJSONObject("candidate"));
-                        case "hello" -> Log.d(TAG, "👋 Received HELLO from: " + fromUser); // optional
-                        default -> Log.w(TAG, "⚠ Unknown message type: " + type);
+                        case "hello" -> Log.d(TAG, "Received HELLO from: " + fromUser); // optional
+                        default -> Log.w(TAG, "Unknown message type: " + type);
                     }
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ Failed to parse signaling message", e);
+                    Log.e(TAG, "Failed to parse signaling message", e);
                 }
             }
 
             @Override
             public void onClosing(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
-                Log.d(TAG, "🔌 Closing: " + reason);
+                Log.d(TAG, "Closing: " + reason);
             }
 
             @Override
             public void onClosed(@NonNull WebSocket webSocket, int code, @NonNull String reason) {
                 connected = false;
-                Log.d(TAG, "🔌 Closed: " + reason);
+                Log.d(TAG, "Closed: " + reason);
                 listener.onDisconnected();
             }
 
             @Override
             public void onFailure(@NonNull WebSocket webSocket, @NonNull Throwable t, Response response) {
                 connected = false;
-                Log.e(TAG, "❌ WebSocket failure: " + t.getMessage());
+                Log.e(TAG, "WebSocket failure: " + t.getMessage());
                 if (response != null) {
                     Log.e(TAG, "Status: " + response.code() + " → " + response.message());
                 }
@@ -131,13 +131,13 @@ public class SignalingClient {
             waitingForAnswer = true;
             timeoutHandler.postDelayed(() -> {
                 if (waitingForAnswer) {
-                    Log.e(TAG, "❌ No answer received within timeout");
+                    Log.e(TAG, "No answer received within timeout");
                     listener.onDisconnected();
                     close();
                 }
             }, ANSWER_TIMEOUT_MS);
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to send offer", e);
+            Log.e(TAG, "Failed to send offer", e);
         }
     }
 
@@ -150,7 +150,7 @@ public class SignalingClient {
             json.put("sdp", sdp);
             sendMessage(json);
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to send answer", e);
+            Log.e(TAG, "Failed to send answer", e);
         }
     }
 
@@ -169,7 +169,7 @@ public class SignalingClient {
             json.put("candidate", candidateJson);
             sendMessage(json);
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to send ICE candidate", e);
+            Log.e(TAG, "Failed to send ICE candidate", e);
         }
     }
 
@@ -179,9 +179,9 @@ public class SignalingClient {
             json.put("type", "hello");
             json.put("fromUser", fromUser);
             sendMessage(json);
-            Log.d(TAG, "📤 Sent HELLO to server");
+            Log.d(TAG, "Sent HELLO to server");
         } catch (Exception e) {
-            Log.e(TAG, "❌ Failed to send hello", e);
+            Log.e(TAG, "Failed to send hello", e);
         }
     }
 

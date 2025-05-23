@@ -52,7 +52,7 @@ public class RemoteActivity extends AppCompatActivity {
         webRtcManager = WebRtcManager.getInstance();
 
         if (!webRtcManager.isInitialized() || webRtcManager.getPeerConnection() == null) {
-            Log.e(TAG, "❌ WebRtcManager chưa được khởi tạo hoặc chưa có peerConnection");
+            Log.e(TAG, "WebRtcManager chưa được khởi tạo hoặc chưa có peerConnection");
             finish();
             return;
         }
@@ -64,7 +64,7 @@ public class RemoteActivity extends AppCompatActivity {
         signaling.setObserver(new SignalingObserver() {
             @Override
             public void onOfferReceived(String from, String sdp) {
-                Log.d(TAG, "📥 Received OFFER from: " + from);
+                Log.d(TAG, "Received OFFER from: " + from);
                 SessionDescription offer = new SessionDescription(SessionDescription.Type.OFFER, sdp);
                 webRtcManager.setRemoteSdp(offer, () -> webRtcManager.createAndSendAnswer());
             }
@@ -78,9 +78,9 @@ public class RemoteActivity extends AppCompatActivity {
                             json.getString("candidate")
                     );
                     webRtcManager.addIceCandidate(candidate);
-                    Log.d(TAG, "📩 Added ICE candidate");
+                    Log.d(TAG, "Added ICE candidate");
                 } catch (Exception e) {
-                    Log.e(TAG, "❌ Failed to parse ICE candidate", e);
+                    Log.e(TAG, "Failed to parse ICE candidate", e);
                 }
             }
 
@@ -91,18 +91,18 @@ public class RemoteActivity extends AppCompatActivity {
 
         if (!webRtcManager.isPeerConnected() && !webRtcManager.hasStartedFlow()) {
             signaling.sendHello(android.os.Build.MODEL);
-            Log.d(TAG, "📤 Gửi HELLO từ RemoteActivity: " + android.os.Build.MODEL);
+            Log.d(TAG, "Gửi HELLO từ RemoteActivity: " + android.os.Build.MODEL);
         } else {
-            Log.d(TAG, "✅ Đã có kết nối P2P — không gửi HELLO");
+            Log.d(TAG, "Đã có kết nối P2P — không gửi HELLO");
         }
 
         VideoTrack track = webRtcManager.getRemoteVideoTrack();
         if (track != null) {
-            Log.d(TAG, "✅ Gắn lại video track");
+            Log.d(TAG, "Gắn lại video track");
             track.addSink(remoteView);
         }
 
-        Log.d(TAG, "🎬 Vào RemoteActivity với PC ID: " + SessionManager.getConnectedPcId());
+        Log.d(TAG, "Vào RemoteActivity với PC ID: " + SessionManager.getConnectedPcId());
 
         // --- Toggle control panel + move handle ---
         handlePanel = findViewById(R.id.handle_panel);
@@ -155,7 +155,7 @@ public class RemoteActivity extends AppCompatActivity {
         super.onDestroy();
         if (remoteView != null) remoteView.release();
         webRtcManager.clearRemoteRenderer();
-        Log.d(TAG, "🧹 Remote renderer cleared");
+        Log.d(TAG, "Remote renderer cleared");
     }
 
     private void forceLandscapeFullscreen() {

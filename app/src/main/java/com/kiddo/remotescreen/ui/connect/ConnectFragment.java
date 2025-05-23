@@ -143,12 +143,12 @@ public class ConnectFragment extends Fragment {
                     SignalingClient signalingClient = SignalingClient.getInstance(new SignalingObserver() {
                         @Override
                         public void onConnected() {
-                            Log.d("ConnectFragment", "✅ Signaling connected");
+                            Log.d("ConnectFragment", "Signaling connected");
                         }
 
                         @Override
                         public void onDisconnected() {
-                            Log.d("ConnectFragment", "🔌 Signaling disconnected");
+                            Log.d("ConnectFragment", "Signaling disconnected");
                         }
 
                         @Override
