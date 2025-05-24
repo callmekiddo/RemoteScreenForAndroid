@@ -1,5 +1,6 @@
 package com.kiddo.remotescreen.ui.control.remote;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -15,7 +16,6 @@ import androidx.appcompat.app.AppCompatActivity;
 import com.kiddo.remotescreen.R;
 import com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardInputHandler;
 import com.kiddo.remotescreen.ui.control.remote.mouse.MouseInputHandler;
-import com.kiddo.remotescreen.util.SessionManager;
 import com.kiddo.remotescreen.util.signaling.SignalingClient;
 import com.kiddo.remotescreen.util.signaling.SignalingObserver;
 import com.kiddo.remotescreen.util.webrtc.WebRtcManager;
@@ -24,7 +24,6 @@ import org.json.JSONObject;
 import org.webrtc.IceCandidate;
 import org.webrtc.RendererCommon;
 import org.webrtc.SessionDescription;
-import org.webrtc.StatsReport;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoTrack;
 
@@ -36,6 +35,7 @@ public class RemoteActivity extends AppCompatActivity {
     private SurfaceViewRenderer remoteView;
     private WebRtcManager webRtcManager;
 
+    private FrameLayout remoteRoot;
     private ImageView handlePanel;
     private LinearLayout controlPanel;
     private LinearLayout infoPanel;
@@ -48,57 +48,52 @@ public class RemoteActivity extends AppCompatActivity {
     private long previousBytes = 0;
     private long previousTimestamp = 0;
 
-    private final Runnable statsRunnable = new Runnable() {
-        @Override
-        public void run() {
-            int fps = frameCount.getAndSet(0);
-            txtFps.setText("FPS: " + fps);
-            remoteView.postDelayed(this, 1000);
-        }
+    private final Runnable statsRunnable = () -> {
+        int fps = frameCount.getAndSet(0);
+        txtFps.setText("FPS: " + fps);
+        remoteView.postDelayed(this.statsRunnable, 1000);
     };
 
-    private final Runnable bitrateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (webRtcManager.getPeerConnection() != null) {
-                webRtcManager.getPeerConnection().getStats(rtcStatsReport -> {
-                    for (org.webrtc.RTCStats stats : rtcStatsReport.getStatsMap().values()) {
-                        if ("inbound-rtp".equals(stats.getType()) || "outbound-rtp".equals(stats.getType())) {
-                            Object bytesObj = stats.getMembers().get("bytesReceived");
-                            if (bytesObj == null) {
-                                bytesObj = stats.getMembers().get("bytesSent");
-                            }
+    private final Runnable bitrateRunnable = () -> {
+        if (webRtcManager.getPeerConnection() != null) {
+            webRtcManager.getPeerConnection().getStats(rtcStatsReport -> {
+                for (org.webrtc.RTCStats stats : rtcStatsReport.getStatsMap().values()) {
+                    if ("inbound-rtp".equals(stats.getType()) || "outbound-rtp".equals(stats.getType())) {
+                        Object bytesObj = stats.getMembers().get("bytesReceived");
+                        if (bytesObj == null) {
+                            bytesObj = stats.getMembers().get("bytesSent");
+                        }
 
-                            if (bytesObj instanceof Number) {
-                                long bytes = ((Number) bytesObj).longValue();
-                                double timestamp = stats.getTimestampUs() / 1000.0; // ms
-                                long timeNow = (long) timestamp;
+                        if (bytesObj instanceof Number) {
+                            long bytes = ((Number) bytesObj).longValue();
+                            double timestamp = stats.getTimestampUs() / 1000.0;
+                            long timeNow = (long) timestamp;
 
-                                if (previousTimestamp > 0) {
-                                    long timeDiff = timeNow - previousTimestamp;
-                                    long byteDiff = bytes - previousBytes;
+                            if (previousTimestamp > 0) {
+                                long timeDiff = timeNow - previousTimestamp;
+                                long byteDiff = bytes - previousBytes;
 
-                                    if (timeDiff > 0) {
-                                        double bitrateKbps = (byteDiff * 8.0) / timeDiff;
-                                        runOnUiThread(() ->
-                                                txtBitrate.setText("Bitrate: " + String.format("%.1f kbps", bitrateKbps))
-                                        );
-                                    }
+                                if (timeDiff > 0) {
+                                    double bitrateKbps = (byteDiff * 8.0) / timeDiff;
+                                    runOnUiThread(() ->
+                                            txtBitrate.setText("Bitrate: " + String.format("%.1f kbps", bitrateKbps))
+                                    );
                                 }
-
-                                previousBytes = bytes;
-                                previousTimestamp = timeNow;
-                                break;
                             }
+
+                            previousBytes = bytes;
+                            previousTimestamp = timeNow;
+                            break;
                         }
                     }
-                });
-            }
-
-            remoteView.postDelayed(this, 1000);
+                }
+            });
         }
+
+        remoteView.postDelayed(this.bitrateRunnable, 1000);
     };
 
+    @SuppressLint("ClickableViewAccessibility")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -106,6 +101,8 @@ public class RemoteActivity extends AppCompatActivity {
         forceLandscapeFullscreen();
 
         remoteView = findViewById(R.id.remote_view);
+        remoteRoot = findViewById(R.id.remote_root);
+
         remoteView.setZOrderMediaOverlay(true);
         remoteView.setEnableHardwareScaler(true);
         remoteView.setMirror(false);
@@ -122,17 +119,20 @@ public class RemoteActivity extends AppCompatActivity {
         remoteView.init(webRtcManager.getEglBaseContext(), null);
         webRtcManager.setRemoteRenderer(remoteView);
 
+        remoteView.addFrameListener(bitmap -> {
+            int width = bitmap.getWidth();
+            int height = bitmap.getHeight();
+            webRtcManager.setRenderedVideoSize(width, height);
+        }, 1.0f, null);
+
         SignalingClient signaling = SignalingClient.getInstance();
         signaling.setObserver(new SignalingObserver() {
-            @Override
-            public void onOfferReceived(String from, String sdp) {
-                Log.d(TAG, "Received OFFER from: " + from);
+            @Override public void onOfferReceived(String from, String sdp) {
                 SessionDescription offer = new SessionDescription(SessionDescription.Type.OFFER, sdp);
-                webRtcManager.setRemoteSdp(offer, () -> webRtcManager.createAndSendAnswer());
+                webRtcManager.setRemoteSdp(offer, webRtcManager::createAndSendAnswer);
             }
 
-            @Override
-            public void onIceCandidateReceived(String from, JSONObject json) {
+            @Override public void onIceCandidateReceived(String from, JSONObject json) {
                 try {
                     IceCandidate candidate = new IceCandidate(
                             json.getString("sdpMid"),
@@ -140,7 +140,6 @@ public class RemoteActivity extends AppCompatActivity {
                             json.getString("candidate")
                     );
                     webRtcManager.addIceCandidate(candidate);
-                    Log.d(TAG, "Added ICE candidate");
                 } catch (Exception e) {
                     Log.e(TAG, "Failed to parse ICE candidate", e);
                 }
@@ -153,25 +152,18 @@ public class RemoteActivity extends AppCompatActivity {
 
         if (!webRtcManager.isPeerConnected() && !webRtcManager.hasStartedFlow()) {
             signaling.sendHello(android.os.Build.MODEL);
-            Log.d(TAG, "Gửi HELLO từ RemoteActivity: " + android.os.Build.MODEL);
-        } else {
-            Log.d(TAG, "Đã có kết nối P2P — không gửi HELLO");
         }
 
         VideoTrack track = webRtcManager.getRemoteVideoTrack();
         if (track != null) {
-            Log.d(TAG, "Gắn lại video track");
             track.addSink(remoteView);
             track.addSink(frame -> frameCount.incrementAndGet());
         } else {
             webRtcManager.setOnRemoteTrackCallback(t -> {
                 t.addSink(remoteView);
                 t.addSink(frame -> frameCount.incrementAndGet());
-                Log.d(TAG, "Gắn video track sau khi nhận");
             });
         }
-
-        Log.d(TAG, "Vào RemoteActivity với PC ID: " + SessionManager.getConnectedPcId());
 
         handlePanel = findViewById(R.id.handle_panel);
         controlPanel = findViewById(R.id.control_panel);
@@ -183,7 +175,6 @@ public class RemoteActivity extends AppCompatActivity {
 
         handlePanel.setOnClickListener(v -> {
             boolean isVisible = controlPanel.getVisibility() == View.VISIBLE;
-
             controlPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
             infoPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
             handlePanel.setImageResource(isVisible ? R.drawable.ic_down : R.drawable.ic_up);
@@ -204,7 +195,6 @@ public class RemoteActivity extends AppCompatActivity {
         btnKeyboard.setOnClickListener(v -> {
             hiddenInput.setVisibility(View.VISIBLE);
             hiddenInput.requestFocus();
-
             hiddenInput.postDelayed(() -> {
                 InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
                 if (imm != null) {
@@ -213,7 +203,20 @@ public class RemoteActivity extends AppCompatActivity {
             }, 100);
         });
 
-        remoteView.setOnTouchListener(new MouseInputHandler(webRtcManager));
+        MouseInputHandler gestureHandler = new MouseInputHandler(webRtcManager);
+
+        remoteView.setOnTouchListener((v, event) -> {
+            if (!webRtcManager.isDataChannelReady()) return false;
+
+            int videoWidth = webRtcManager.getRenderedVideoWidth();
+            int videoHeight = webRtcManager.getRenderedVideoHeight();
+            int viewWidth = remoteView.getWidth();
+            int viewHeight = remoteView.getHeight();
+
+            gestureHandler.onTouch(event, videoWidth, videoHeight, viewWidth, viewHeight);
+            return true;
+        });
+
         new KeyboardInputHandler(webRtcManager).attach(hiddenInput);
 
         remoteView.postDelayed(statsRunnable, 1000);
@@ -225,7 +228,6 @@ public class RemoteActivity extends AppCompatActivity {
         super.onDestroy();
         if (remoteView != null) remoteView.release();
         webRtcManager.clearRemoteRenderer();
-        Log.d(TAG, "Remote renderer cleared");
     }
 
     private void forceLandscapeFullscreen() {

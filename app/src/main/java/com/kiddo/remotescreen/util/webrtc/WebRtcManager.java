@@ -37,6 +37,12 @@ public class WebRtcManager {
     private DataChannel dataChannel;
     private boolean dataChannelReady = false;
 
+    private int remoteScreenWidth = 1920;
+    private int remoteScreenHeight = 1080;
+
+    private int renderedVideoWidth = 1920;
+    private int renderedVideoHeight = 1080;
+
     private Consumer<VideoTrack> onRemoteTrackCallback;
 
     private WebRtcManager() {}
@@ -88,6 +94,19 @@ public class WebRtcManager {
 
     public void setOnRemoteTrackCallback(Consumer<VideoTrack> callback) {
         this.onRemoteTrackCallback = callback;
+    }
+
+    public void setRenderedVideoSize(int width, int height) {
+        this.renderedVideoWidth = width;
+        this.renderedVideoHeight = height;
+    }
+
+    public int getRenderedVideoWidth() {
+        return renderedVideoWidth;
+    }
+
+    public int getRenderedVideoHeight() {
+        return renderedVideoHeight;
     }
 
     public void startRemoteFlow(String androidName) {
@@ -161,7 +180,23 @@ public class WebRtcManager {
                         dataChannelReady = (dataChannel.state() == DataChannel.State.OPEN);
                         Log.d(TAG, "DataChannel state: " + dataChannel.state());
                     }
-                    @Override public void onMessage(DataChannel.Buffer buffer) {}
+                    @Override
+                    public void onMessage(DataChannel.Buffer buffer) {
+                        if (!buffer.binary) {
+                            String msg = StandardCharsets.UTF_8.decode(buffer.data).toString();
+                            if (msg.startsWith("screen-info:")) {
+                                try {
+                                    String[] parts = msg.substring("screen-info:".length()).split("x");
+                                    int width = Integer.parseInt(parts[0]);
+                                    int height = Integer.parseInt(parts[1]);
+                                    setRemoteScreenSize(width, height);
+                                    Log.d(TAG, "Received screen-info: " + width + "x" + height);
+                                } catch (Exception e) {
+                                    Log.e(TAG, "Invalid screen-info format", e);
+                                }
+                            }
+                        }
+                    }
                 });
             }
 
@@ -205,6 +240,10 @@ public class WebRtcManager {
         ByteBuffer buffer = ByteBuffer.wrap(msg.getBytes(StandardCharsets.UTF_8));
         dataChannel.send(new DataChannel.Buffer(buffer, false));
         Log.d(TAG, "Sent mouse command: " + msg);
+    }
+
+    public void sendMouseMove(int x, int y) {
+        sendMouseCommand(x, y, "move");
     }
 
     public void setRemoteSdp(SessionDescription sdp, Runnable onSuccess) {
@@ -286,6 +325,19 @@ public class WebRtcManager {
             }
         }
         return null;
+    }
+
+    public int getRemoteScreenWidth() {
+        return remoteScreenWidth > 0 ? remoteScreenWidth : 1920;
+    }
+
+    public int getRemoteScreenHeight() {
+        return remoteScreenHeight > 0 ? remoteScreenHeight : 1080;
+    }
+
+    public void setRemoteScreenSize(int width, int height) {
+        this.remoteScreenWidth = width;
+        this.remoteScreenHeight = height;
     }
 
     private static abstract class SdpObserverAdapter implements SdpObserver {
