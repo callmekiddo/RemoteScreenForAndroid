@@ -17,10 +17,16 @@ public class MouseInputHandler {
     private float downX = 0, downY = 0;
     private Float initialScrollY = null;
 
+    private long lastTapTime = 0;
+    private float lastTapX = 0, lastTapY = 0;
+
     private static final long HOLD_THRESHOLD = 400;
     private static final float MOVE_THRESHOLD = 20f;
     private static final long SCROLL_THRESHOLD_TIME = 150;
     private static final float SCROLL_MOVE_THRESHOLD = 30f;
+
+    private static final long DOUBLE_TAP_TIMEOUT = 300;
+    private static final float DOUBLE_TAP_SLOP = 50f;
 
     private final Handler handler = new Handler();
     private Runnable holdRunnable;
@@ -36,13 +42,34 @@ public class MouseInputHandler {
         switch (action) {
             case MotionEvent.ACTION_DOWN -> {
                 reset();
-                downTime = System.currentTimeMillis();
-                downX = event.getX(0);
-                downY = event.getY(0);
+
+                float tapX = event.getX(0);
+                float tapY = event.getY(0);
+                long now = System.currentTimeMillis();
+                float dist = (float) Math.hypot(tapX - lastTapX, tapY - lastTapY);
+
+                // Detect double tap
+                if (now - lastTapTime <= DOUBLE_TAP_TIMEOUT && dist <= DOUBLE_TAP_SLOP) {
+                    int[] pos = mapToRemoteXY(tapX, tapY, videoWidth, videoHeight, viewWidth, viewHeight);
+                    rtc.sendMouseCommand(pos[0], pos[1], MouseAction.PRESS);
+                    rtc.sendMouseCommand(pos[0], pos[1], MouseAction.RELEASE);
+                    rtc.sendMouseCommand(pos[0], pos[1], MouseAction.PRESS);
+                    rtc.sendMouseCommand(pos[0], pos[1], MouseAction.RELEASE);
+                    lastTapTime = 0; // reset
+                    return;
+                }
+
+                lastTapTime = now;
+                lastTapX = tapX;
+                lastTapY = tapY;
+
+                downTime = now;
+                downX = tapX;
+                downY = tapY;
                 hasMoved = false;
 
                 holdRunnable = () -> {
-                    if (!hasMoved && !scrollMode) {
+                    if (!hasMoved && !scrollMode && !rightClickTriggered) {
                         int[] pos = mapToRemoteXY(downX, downY, videoWidth, videoHeight, viewWidth, viewHeight);
                         rtc.sendMouseCommand(pos[0], pos[1], MouseAction.PRESS);
                         isHolding = true;
@@ -52,17 +79,24 @@ public class MouseInputHandler {
             }
 
             case MotionEvent.ACTION_MOVE -> {
-                float dx = event.getX(0) - downX;
-                float dy = event.getY(0) - downY;
+                float currX = event.getX(0);
+                float currY = event.getY(0);
+                float dx = currX - downX;
+                float dy = currY - downY;
                 float distance = (float) Math.hypot(dx, dy);
 
                 if (!hasMoved && distance > MOVE_THRESHOLD) {
                     hasMoved = true;
-                    handler.removeCallbacks(holdRunnable);
+                    if (!isHolding) {
+                        handler.removeCallbacks(holdRunnable);
+                    }
                 }
 
-                if (hasMoved && !scrollMode && !isHolding) {
-                    int[] pos = mapToRemoteXY(event.getX(0), event.getY(0), videoWidth, videoHeight, viewWidth, viewHeight);
+                if (isHolding) {
+                    int[] pos = mapToRemoteXY(currX, currY, videoWidth, videoHeight, viewWidth, viewHeight);
+                    rtc.sendMouseCommand(pos[0], pos[1], MouseAction.MOVE);
+                } else if (hasMoved && !scrollMode) {
+                    int[] pos = mapToRemoteXY(currX, currY, videoWidth, videoHeight, viewWidth, viewHeight);
                     rtc.sendMouseCommand(pos[0], pos[1], MouseAction.MOVE);
                 }
 
@@ -88,15 +122,19 @@ public class MouseInputHandler {
             }
 
             case MotionEvent.ACTION_POINTER_DOWN -> {
-                if (pointerCount == 2) {
-                    long delay = System.currentTimeMillis() - downTime;
-                    float y0 = event.getY(0), y1 = event.getY(1);
+                if (pointerCount == 2 && !rightClickTriggered && !scrollMode) {
+                    long now = System.currentTimeMillis();
+                    long interval = now - downTime;
 
-                    if (delay <= SCROLL_THRESHOLD_TIME) {
+                    if (interval <= SCROLL_THRESHOLD_TIME) {
+                        // Scroll mode
+                        float y0 = event.getY(0);
+                        float y1 = event.getY(1);
                         scrollMode = true;
                         initialScrollY = (y0 + y1) / 2;
                         handler.removeCallbacks(holdRunnable);
-                    } else if (!rightClickTriggered) {
+                    } else {
+                        // Right click tại ngón đầu tiên
                         int[] pos = mapToRemoteXY(downX, downY, videoWidth, videoHeight, viewWidth, viewHeight);
                         rtc.sendMouseCommand(pos[0], pos[1], MouseAction.RIGHT_CLICK);
                         rightClickTriggered = true;
@@ -110,7 +148,6 @@ public class MouseInputHandler {
                 int[] pos = mapToRemoteXY(event.getX(0), event.getY(0), videoWidth, videoHeight, viewWidth, viewHeight);
 
                 if (rightClickTriggered) {
-                    // Do nothing
                 } else if (isHolding) {
                     rtc.sendMouseCommand(pos[0], pos[1], MouseAction.RELEASE);
                 } else if (!hasMoved) {
