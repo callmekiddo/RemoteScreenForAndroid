@@ -1,5 +1,6 @@
 package com.kiddo.remotescreen.util.webrtc;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.util.Log;
 
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
 public class WebRtcManager {
     private static final String TAG = "WebRtcManager";
@@ -34,6 +36,8 @@ public class WebRtcManager {
 
     private DataChannel dataChannel;
     private boolean dataChannelReady = false;
+
+    private Consumer<VideoTrack> onRemoteTrackCallback;
 
     private WebRtcManager() {}
 
@@ -82,6 +86,10 @@ public class WebRtcManager {
         }
     }
 
+    public void setOnRemoteTrackCallback(Consumer<VideoTrack> callback) {
+        this.onRemoteTrackCallback = callback;
+    }
+
     public void startRemoteFlow(String androidName) {
         if (!hasStartedFlow && signalingClient != null && signalingClient.isConnected()) {
             signalingClient.sendHello(androidName);
@@ -110,7 +118,7 @@ public class WebRtcManager {
             public void onIceCandidate(IceCandidate candidate) {
                 if (sentCandidates.size() < MAX_ICE_CANDIDATES &&
                         !sentCandidates.contains(candidate.sdp) &&
-                        (candidate.sdp.contains("typ host") || candidate.sdp.contains("typ srflx"))) {
+                        (candidate.sdp.contains("typ host") || candidate.sdp.contains("typ srflx") || candidate.sdp.contains("typ relay"))) {
 
                     sentCandidates.add(candidate.sdp);
                     signalingClient.sendIceCandidate(remoteDeviceId, candidate);
@@ -118,13 +126,23 @@ public class WebRtcManager {
                 }
             }
 
+            @SuppressLint("NewApi")
             @Override
             public void onTrack(RtpTransceiver transceiver) {
                 MediaStreamTrack track = transceiver.getReceiver().track();
-                if (track instanceof VideoTrack && remoteRenderer != null) {
+                if (track instanceof VideoTrack) {
                     VideoTrack videoTrack = (VideoTrack) track;
                     videoTrack.setEnabled(true);
-                    videoTrack.addSink(remoteRenderer);
+
+                    if (remoteRenderer != null) {
+                        videoTrack.addSink(remoteRenderer);
+                    }
+
+                    if (onRemoteTrackCallback != null) {
+                        onRemoteTrackCallback.accept(videoTrack);
+                    }
+
+                    Log.d(TAG, "Video track received and callback invoked");
                 }
             }
 

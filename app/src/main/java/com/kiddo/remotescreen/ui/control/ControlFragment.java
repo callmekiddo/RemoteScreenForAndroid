@@ -57,8 +57,10 @@ public class ControlFragment extends Fragment {
             buttonRemote.setVisibility(View.VISIBLE);
             buttonRemote.setEnabled(true);
             textPcName.setText(pcName != null && !pcName.isEmpty() ? pcName : pcId);
-            buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary));
-            buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnPrimary));
+            if (isAdded()) {
+                buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary));
+                buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnPrimary));
+            }
 
             startAutoStatusCheck(pcId, connectionLayout, divider, buttonRemote);
         } else {

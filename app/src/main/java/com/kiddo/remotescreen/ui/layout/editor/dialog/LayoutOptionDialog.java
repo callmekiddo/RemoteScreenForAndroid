@@ -35,6 +35,8 @@ public class LayoutOptionDialog extends Dialog {
             icon.setImageBitmap(bitmap);
         } else {
             icon.setImageResource(R.drawable.layout);
+            int colorOnBackground = resolveAttrColor(context, com.google.android.material.R.attr.colorOnBackground);
+            icon.setColorFilter(colorOnBackground, android.graphics.PorterDuff.Mode.SRC_IN);
         }
 
         btnEdit.setOnClickListener(v -> {
@@ -48,5 +50,11 @@ public class LayoutOptionDialog extends Dialog {
         });
 
         btnClose.setOnClickListener(v -> dismiss());
+    }
+
+    private int resolveAttrColor(Context context, int attr) {
+        android.util.TypedValue typedValue = new android.util.TypedValue();
+        context.getTheme().resolveAttribute(attr, typedValue, true);
+        return typedValue.data;
     }
 }

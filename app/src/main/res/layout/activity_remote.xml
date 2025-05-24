@@ -1,4 +1,5 @@
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/remote_root"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
@@ -17,9 +18,9 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:gravity="center"
+        android:layout_gravity="top|center_horizontal"
         android:background="@color/colorOverlay"
         android:padding="12dp"
-        android:layout_gravity="top|center"
         android:visibility="gone">
 
         <ImageView
@@ -28,7 +29,7 @@
             android:layout_height="30dp"
             android:src="@drawable/ic_keyboard"
             android:contentDescription="Keyboard"
-            android:layout_marginRight="6dp"/>
+            android:layout_marginEnd="6dp"/>
 
         <ImageView
             android:id="@+id/btn_layout"
@@ -36,8 +37,41 @@
             android:layout_height="30dp"
             android:src="@drawable/layout"
             android:contentDescription="Layout"
-            android:layout_marginLeft="6dp"/>
+            android:layout_marginStart="6dp"
+            app:tint="@color/colorOnBackground" />
     </LinearLayout>
+
+    <!-- Info Panel bên trái cùng hàng -->
+    <LinearLayout
+        android:id="@+id/info_panel"
+        android:layout_width="140dp"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="12dp"
+        android:background="@color/colorOverlay"
+        android:padding="12dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/txt_fps"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="FPS: --"
+            android:textColor="@color/colorOnBackground"
+            android:textSize="12sp" />
+
+        <TextView
+            android:id="@+id/txt_bitrate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Bitrate: --"
+            android:textColor="@color/colorOnBackground"
+            android:textSize="12sp" />
+
+    </LinearLayout>
+
 
     <!-- Handle nằm riêng, luôn hiển thị -->
     <ImageView
