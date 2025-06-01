@@ -73,15 +73,15 @@
         android:alpha="0.2"
         android:layout_marginBottom="24dp" />
 
-    <com.google.android.material.button.MaterialButton
+    <Button
         android:id="@+id/buttonRemote"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/remote_control"
         android:textSize="16sp"
-        android:textColor="?attr/colorOnSecondary"
+        android:textColor="?attr/colorOnBackground"
         app:icon="@drawable/remote"
-        app:iconTint="?attr/colorOnSecondary"
+        app:iconTint="?attr/colorOnBackground"
         app:iconGravity="textStart"
         app:backgroundTint="?attr/colorSecondary"
         app:cornerRadius="12dp"

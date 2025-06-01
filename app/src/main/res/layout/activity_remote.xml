@@ -76,8 +76,8 @@
     <!-- Handle nằm riêng, luôn hiển thị -->
     <ImageView
         android:id="@+id/handle_panel"
-        android:layout_width="32dp"
-        android:layout_height="16dp"
+        android:layout_width="48dp"
+        android:layout_height="24dp"
         android:layout_gravity="top|center_horizontal"
         android:layout_marginTop="0dp"
         android:background="@drawable/bg_half_circle"
@@ -85,12 +85,73 @@
         android:scaleType="center"
         android:contentDescription="Toggle Panel" />
 
-    <com.kiddo.remotescreen.util.SilentEditText
-        android:id="@+id/hidden_input"
-        android:layout_width="1dp"
-        android:layout_height="1dp"
-        android:alpha="0"
-        android:focusable="true"
-        android:focusableInTouchMode="true"
-        android:background="@android:color/transparent"/>
+    <com.kiddo.remotescreen.util.CustomKeyboardView
+        android:id="@+id/keyboard_overlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        android:background="@color/colorOverlay"
+        android:visibility="gone" />
+
+<!--    <LinearLayout-->
+<!--        android:id="@+id/keyboard_overlay"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:orientation="horizontal"-->
+<!--        android:layout_gravity="bottom"-->
+<!--        android:layout_marginBottom="205dp"-->
+<!--        android:gravity="left"-->
+<!--        android:background="@color/colorOverlay"-->
+<!--        android:visibility="gone">-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_tab"-->
+<!--            android:text="Tab"-->
+<!--            android:layout_marginStart="30dp"-->
+<!--            android:textColor="@color/colorOnBackground"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/background_kb_button" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_shift"-->
+<!--            android:text="Shift"-->
+<!--            android:textColor="@color/colorOnBackground"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/background_kb_button" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_win"-->
+<!--            android:text="Win"-->
+<!--            android:textColor="@color/colorOnBackground"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:background="@drawable/background_kb_button" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_ctrl"-->
+<!--            android:text="Ctrl"-->
+<!--            android:textColor="@color/colorOnBackground"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:background="@drawable/background_kb_button" />-->
+
+<!--        <Button-->
+<!--            android:id="@+id/btn_alt"-->
+<!--            android:text="Alt"-->
+<!--            android:textColor="@color/colorOnBackground"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="match_parent"-->
+<!--            android:background="@drawable/background_kb_button" />-->
+<!--    </LinearLayout>-->
+
+<!--    <com.kiddo.remotescreen.util.SilentEditText-->
+<!--        android:id="@+id/hidden_input"-->
+<!--        android:layout_width="1dp"-->
+<!--        android:layout_height="1dp"-->
+<!--        android:alpha="0"-->
+<!--        android:focusable="true"-->
+<!--        android:focusableInTouchMode="true"-->
+<!--        android:background="@android:color/transparent"/>-->
 </FrameLayout>

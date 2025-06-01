@@ -165,14 +165,20 @@ public class ConnectFragment extends Fragment {
                         signalingClient.connect(signalingUrl);
                     }
 
-                    requireActivity().getSupportFragmentManager()
-                            .beginTransaction()
-                            .replace(R.id.fragment_container, new ControlFragment())
-                            .addToBackStack(null)
-                            .commit();
+                    if (!isAdded()) return;
 
-                    BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
-                    bottomNav.setSelectedItemId(R.id.nav_control);
+                    requireActivity().runOnUiThread(() -> {
+                        if (!isAdded()) return;
+
+                        requireActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.fragment_container, new ControlFragment())
+                                .addToBackStack(null)
+                                .commit();
+
+                        BottomNavigationView bottomNav = requireActivity().findViewById(R.id.bottom_nav);
+                        bottomNav.setSelectedItemId(R.id.nav_control);
+                    });
                 });
             }
 
@@ -233,6 +239,11 @@ public class ConnectFragment extends Fragment {
                 @Override
                 public void onError(String error) {
                     Log.e("PcHistoryStatus", "Failed to fetch status for " + item.getId() + ": " + error);
+                    item.setStatus("disable"); // 👉 Đặt mặc định là disable khi có lỗi
+                    requireActivity().runOnUiThread(() -> {
+                        if (!isAdded()) return;
+                        adapter.notifyDataSetChanged();
+                    });
                 }
             });
         }

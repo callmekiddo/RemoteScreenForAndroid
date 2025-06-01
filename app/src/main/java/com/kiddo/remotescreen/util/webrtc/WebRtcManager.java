@@ -229,11 +229,6 @@ public class WebRtcManager {
         Log.d(TAG, "Sent keycode: " + msg);
     }
 
-    public void sendKeyInstant(int keyCode) {
-        sendKey(keyCode, "press");
-        sendKey(keyCode, "release");
-    }
-
     public void sendMouseCommand(int x, int y, String action) {
         if (!dataChannelReady || dataChannel == null) return;
         String msg = String.format("mouse:%d,%d,%s", x, y, action);
@@ -242,9 +237,6 @@ public class WebRtcManager {
         Log.d(TAG, "Sent mouse command: " + msg);
     }
 
-    public void sendMouseMove(int x, int y) {
-        sendMouseCommand(x, y, "move");
-    }
 
     public void setRemoteSdp(SessionDescription sdp, Runnable onSuccess) {
         if (peerConnection == null) return;

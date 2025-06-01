@@ -1,11 +1,15 @@
 package com.kiddo.remotescreen.ui.control.remote;
 
+import static com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardAction.PRESS;
+import static com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardAction.RELEASE;
+
 import android.annotation.SuppressLint;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.KeyEvent;
+import android.view.MotionEvent;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -14,8 +18,8 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kiddo.remotescreen.R;
-import com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardInputHandler;
 import com.kiddo.remotescreen.ui.control.remote.mouse.MouseInputHandler;
+import com.kiddo.remotescreen.util.CustomKeyboardView;
 import com.kiddo.remotescreen.util.signaling.SignalingClient;
 import com.kiddo.remotescreen.util.signaling.SignalingObserver;
 import com.kiddo.remotescreen.util.webrtc.WebRtcManager;
@@ -40,7 +44,7 @@ public class RemoteActivity extends AppCompatActivity {
     private LinearLayout controlPanel;
     private LinearLayout infoPanel;
     private ImageView btnKeyboard;
-    private EditText hiddenInput;
+    private CustomKeyboardView keyboardOverlay;
     private TextView txtFps;
     private TextView txtBitrate;
 
@@ -93,7 +97,7 @@ public class RemoteActivity extends AppCompatActivity {
         remoteView.postDelayed(this.bitrateRunnable, 1000);
     };
 
-    @SuppressLint("ClickableViewAccessibility")
+    @SuppressLint({"ClickableViewAccessibility", "NewApi"})
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -169,55 +173,89 @@ public class RemoteActivity extends AppCompatActivity {
         controlPanel = findViewById(R.id.control_panel);
         infoPanel = findViewById(R.id.info_panel);
         btnKeyboard = findViewById(R.id.btn_keyboard);
-        hiddenInput = findViewById(R.id.hidden_input);
+        keyboardOverlay = findViewById(R.id.keyboard_overlay);
         txtFps = findViewById(R.id.txt_fps);
         txtBitrate = findViewById(R.id.txt_bitrate);
 
-        handlePanel.setOnClickListener(v -> {
-            boolean isVisible = controlPanel.getVisibility() == View.VISIBLE;
-            controlPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-            infoPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
-            handlePanel.setImageResource(isVisible ? R.drawable.ic_down : R.drawable.ic_up);
+        handlePanel.setOnTouchListener(new View.OnTouchListener() {
+            float initialX, dX;
+            long downTime;
+            boolean moved = false;
 
-            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) handlePanel.getLayoutParams();
-            if (isVisible) {
-                params.topMargin = 0;
-            } else {
-                controlPanel.post(() -> {
-                    params.topMargin = controlPanel.getHeight();
-                    handlePanel.setLayoutParams(params);
-                });
-                return;
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                switch (event.getAction()) {
+                    case MotionEvent.ACTION_DOWN:
+                        initialX = event.getRawX();
+                        dX = v.getX() - event.getRawX();
+                        downTime = System.currentTimeMillis();
+                        moved = false;
+                        return true;
+
+                    case MotionEvent.ACTION_MOVE:
+                        float newX = event.getRawX() + dX;
+                        v.setX(newX);
+                        moved = true;
+                        return true;
+
+                    case MotionEvent.ACTION_UP:
+                        long clickDuration = System.currentTimeMillis() - downTime;
+                        if (!moved || clickDuration < 200) {
+                            boolean isVisible = controlPanel.getVisibility() == View.VISIBLE;
+                            controlPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+                            infoPanel.setVisibility(isVisible ? View.GONE : View.VISIBLE);
+                            handlePanel.setImageResource(isVisible ? R.drawable.ic_down : R.drawable.ic_up);
+
+                            FrameLayout.LayoutParams params = (FrameLayout.LayoutParams) handlePanel.getLayoutParams();
+                            if (isVisible) {
+                                params.topMargin = 0;
+                            } else {
+                                controlPanel.post(() -> {
+                                    params.topMargin = controlPanel.getHeight();
+                                    handlePanel.setLayoutParams(params);
+                                });
+                                return true;
+                            }
+                            handlePanel.setLayoutParams(params);
+                        }
+                        return true;
+                }
+                return false;
             }
-            handlePanel.setLayoutParams(params);
         });
 
         btnKeyboard.setOnClickListener(v -> {
-            hiddenInput.setVisibility(View.VISIBLE);
-            hiddenInput.requestFocus();
-            hiddenInput.postDelayed(() -> {
-                InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
-                if (imm != null) {
-                    imm.showSoftInput(hiddenInput, InputMethodManager.SHOW_IMPLICIT);
-                }
-            }, 100);
+            boolean isVisible = keyboardOverlay.getVisibility() == View.VISIBLE;
+            keyboardOverlay.setVisibility(isVisible ? View.GONE : View.VISIBLE);
         });
 
-        MouseInputHandler gestureHandler = new MouseInputHandler(webRtcManager);
+        keyboardOverlay.setRtcManager(webRtcManager);
 
+        remoteView.setOnKeyListener((v, keyCode, event) -> {
+            if (event.getDevice() != null && event.getDevice().isExternal()) {
+                keyboardOverlay.setVisibility(View.GONE);
+                if (event.getAction() == KeyEvent.ACTION_DOWN) {
+                    webRtcManager.sendKey(keyCode, PRESS);
+                } else if (event.getAction() == KeyEvent.ACTION_UP) {
+                    webRtcManager.sendKey(keyCode, RELEASE);
+                }
+                return true;
+            }
+            return false;
+        });
+        remoteView.setFocusableInTouchMode(true);
+        remoteView.requestFocus();
+
+        MouseInputHandler gestureHandler = new MouseInputHandler(webRtcManager);
         remoteView.setOnTouchListener((v, event) -> {
             if (!webRtcManager.isDataChannelReady()) return false;
-
             int videoWidth = webRtcManager.getRenderedVideoWidth();
             int videoHeight = webRtcManager.getRenderedVideoHeight();
             int viewWidth = remoteView.getWidth();
             int viewHeight = remoteView.getHeight();
-
             gestureHandler.onTouch(event, videoWidth, videoHeight, viewWidth, viewHeight);
             return true;
         });
-
-        new KeyboardInputHandler(webRtcManager).attach(hiddenInput);
 
         remoteView.postDelayed(statsRunnable, 1000);
         remoteView.postDelayed(bitrateRunnable, 1000);
@@ -228,6 +266,10 @@ public class RemoteActivity extends AppCompatActivity {
         super.onDestroy();
         if (remoteView != null) remoteView.release();
         webRtcManager.clearRemoteRenderer();
+
+        if (keyboardOverlay != null && keyboardOverlay.getKeyboardHandler() != null) {
+            keyboardOverlay.getKeyboardHandler().releaseAllModifiers();
+        }
     }
 
     private void forceLandscapeFullscreen() {

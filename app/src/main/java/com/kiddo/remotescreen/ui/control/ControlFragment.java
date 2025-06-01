@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -44,7 +45,7 @@ public class ControlFragment extends Fragment {
         LinearLayout connectionLayout = view.findViewById(R.id.connectionInfoLayout);
         TextView textPcName = view.findViewById(R.id.textPcName);
         TextView buttonDisconnect = view.findViewById(R.id.buttonDisconnect);
-        MaterialButton buttonRemote = view.findViewById(R.id.buttonRemote);
+        Button buttonRemote = view.findViewById(R.id.buttonRemote);
         View divider = view.findViewById(R.id.viewDivider);
 
         String pcName = SessionManager.getConnectedPcName();
@@ -57,10 +58,10 @@ public class ControlFragment extends Fragment {
             buttonRemote.setVisibility(View.VISIBLE);
             buttonRemote.setEnabled(true);
             textPcName.setText(pcName != null && !pcName.isEmpty() ? pcName : pcId);
-            if (isAdded()) {
-                buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary));
-                buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnPrimary));
-            }
+//            if (isAdded()) {
+//                buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.colorPrimary));
+//                buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnPrimary));
+//            }
 
             startAutoStatusCheck(pcId, connectionLayout, divider, buttonRemote);
         } else {
@@ -69,7 +70,7 @@ public class ControlFragment extends Fragment {
             buttonRemote.setVisibility(View.VISIBLE);
             buttonRemote.setEnabled(false);
             buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
-            buttonRemote.setTextColor(Color.DKGRAY);
+            buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnBackground));
         }
 
         buttonDisconnect.setOnClickListener(v -> {
@@ -100,7 +101,7 @@ public class ControlFragment extends Fragment {
         });
     }
 
-    private void startAutoStatusCheck(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+    private void startAutoStatusCheck(String pcId, View connectionLayout, View divider, Button buttonRemote) {
         stopAutoStatusCheck();
 
         statusHandler = new Handler();
@@ -147,7 +148,7 @@ public class ControlFragment extends Fragment {
         stopAutoStatusCheck();
     }
 
-    private void autoDisconnect(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+    private void autoDisconnect(String pcId, View connectionLayout, View divider, Button buttonRemote) {
         DeviceRepository.disconnectAndroid(pcId, new DeviceRepository.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -165,7 +166,7 @@ public class ControlFragment extends Fragment {
                     divider.setVisibility(View.GONE);
                     buttonRemote.setEnabled(false);
                     buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
-                    buttonRemote.setTextColor(Color.DKGRAY);
+                    buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnBackground));
 
                     ConnectCooldownManager.setCooldown();
                 });
@@ -181,7 +182,7 @@ public class ControlFragment extends Fragment {
         });
     }
 
-    private void disconnectFromPc(String pcId, View connectionLayout, View divider, MaterialButton buttonRemote) {
+    private void disconnectFromPc(String pcId, View connectionLayout, View divider, Button buttonRemote) {
         DeviceRepository.disconnectAndroid(pcId, new DeviceRepository.SimpleCallback() {
             @Override
             public void onSuccess() {
@@ -199,7 +200,7 @@ public class ControlFragment extends Fragment {
                     divider.setVisibility(View.GONE);
                     buttonRemote.setEnabled(false);
                     buttonRemote.setBackgroundTintList(ContextCompat.getColorStateList(requireContext(), R.color.gray));
-                    buttonRemote.setTextColor(Color.DKGRAY);
+                    buttonRemote.setTextColor(ContextCompat.getColor(requireContext(), R.color.colorOnBackground));
 
                     ConnectCooldownManager.setCooldown();
                 });
