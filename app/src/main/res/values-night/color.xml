@@ -11,5 +11,5 @@
 
     <color name="green">#4CAF50</color>
     <color name="red">#FF0000</color>
-    <color name="colorOverlay">#5A000000</color>
+    <color name="colorOverlay">#3A000000</color>
 </resources>

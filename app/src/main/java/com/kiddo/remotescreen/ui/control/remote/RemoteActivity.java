@@ -4,12 +4,13 @@ import static com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardAction.P
 import static com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardAction.RELEASE;
 
 import android.annotation.SuppressLint;
-import android.graphics.Rect;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -18,6 +19,11 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.kiddo.remotescreen.R;
+import com.kiddo.remotescreen.model.ButtonData;
+import com.kiddo.remotescreen.model.KeyFunction;
+import com.kiddo.remotescreen.model.LayoutInfo;
+import com.kiddo.remotescreen.repository.LayoutRepository;
+import com.kiddo.remotescreen.ui.control.remote.dialog.SelectLayoutDialog;
 import com.kiddo.remotescreen.ui.control.remote.mouse.MouseInputHandler;
 import com.kiddo.remotescreen.util.CustomKeyboardView;
 import com.kiddo.remotescreen.util.signaling.SignalingClient;
@@ -31,6 +37,7 @@ import org.webrtc.SessionDescription;
 import org.webrtc.SurfaceViewRenderer;
 import org.webrtc.VideoTrack;
 
+import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class RemoteActivity extends AppCompatActivity {
@@ -40,10 +47,12 @@ public class RemoteActivity extends AppCompatActivity {
     private WebRtcManager webRtcManager;
 
     private FrameLayout remoteRoot;
+    private FrameLayout layoutOverlay;
     private ImageView handlePanel;
     private LinearLayout controlPanel;
     private LinearLayout infoPanel;
     private ImageView btnKeyboard;
+    private ImageView btnLayout;
     private CustomKeyboardView keyboardOverlay;
     private TextView txtFps;
     private TextView txtBitrate;
@@ -51,6 +60,9 @@ public class RemoteActivity extends AppCompatActivity {
     private final AtomicInteger frameCount = new AtomicInteger();
     private long previousBytes = 0;
     private long previousTimestamp = 0;
+
+    private boolean isLayoutShown = false;
+    private View layoutView;
 
     private final Runnable statsRunnable = () -> {
         int fps = frameCount.getAndSet(0);
@@ -106,6 +118,7 @@ public class RemoteActivity extends AppCompatActivity {
 
         remoteView = findViewById(R.id.remote_view);
         remoteRoot = findViewById(R.id.remote_root);
+        layoutOverlay = findViewById(R.id.layout_overlay);
 
         remoteView.setZOrderMediaOverlay(true);
         remoteView.setEnableHardwareScaler(true);
@@ -173,6 +186,7 @@ public class RemoteActivity extends AppCompatActivity {
         controlPanel = findViewById(R.id.control_panel);
         infoPanel = findViewById(R.id.info_panel);
         btnKeyboard = findViewById(R.id.btn_keyboard);
+        btnLayout = findViewById(R.id.btn_layout);
         keyboardOverlay = findViewById(R.id.keyboard_overlay);
         txtFps = findViewById(R.id.txt_fps);
         txtBitrate = findViewById(R.id.txt_bitrate);
@@ -228,6 +242,48 @@ public class RemoteActivity extends AppCompatActivity {
             boolean isVisible = keyboardOverlay.getVisibility() == View.VISIBLE;
             keyboardOverlay.setVisibility(isVisible ? View.GONE : View.VISIBLE);
         });
+
+        btnLayout.setOnClickListener(v -> {
+            if (isLayoutShown) {
+                layoutOverlay.removeAllViews();
+                layoutView = null;
+                isLayoutShown = false;
+            } else {
+                List<LayoutInfo> layouts = LayoutRepository.loadAll(getApplicationContext());
+                new SelectLayoutDialog(layouts, selectedLayout -> {
+                    layoutOverlay.removeAllViews();
+
+                    FrameLayout layoutContainer = new FrameLayout(this);
+                    layoutView = layoutContainer;
+                    layoutOverlay.addView(layoutContainer);
+
+                    for (ButtonData btn : selectedLayout.getButtons()) {
+                        Button view = new Button(this);
+                        view.setText(btn.getName());
+                        view.setTextColor(getColor(R.color.colorPrimary));
+                        view.setBackgroundResource(R.drawable.background_button);
+
+                        FrameLayout.LayoutParams params = new FrameLayout.LayoutParams(
+                                (int)(btn.getWidthRatio() * layoutOverlay.getWidth()),
+                                (int)(btn.getHeightRatio() * layoutOverlay.getHeight())
+                        );
+                        params.leftMargin = (int)(btn.getLeftRatio() * layoutOverlay.getWidth());
+                        params.topMargin = (int)(btn.getTopRatio() * layoutOverlay.getHeight());
+                        view.setLayoutParams(params);
+
+                        view.setOnClickListener(vv -> {
+                            KeyFunction f = btn.getFunction(); // nếu bạn đang dùng 1 function
+                            if (f != null) f.send(webRtcManager);
+                        });
+
+                        layoutContainer.addView(view);
+                    }
+
+                    isLayoutShown = true;
+                }).show(getSupportFragmentManager(), "select_layout");
+            }
+        });
+
 
         keyboardOverlay.setRtcManager(webRtcManager);
 

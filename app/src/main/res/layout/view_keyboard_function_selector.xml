@@ -1,21 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/linear_keyboard"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/background_dialog"
     android:orientation="vertical"
+    android:background="@drawable/background_dialog"
     android:padding="12dp">
 
-        <!-- Header -->
+    <!-- Header -->
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
-
         <TextView
             android:id="@+id/textKeyboardTitle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentStart="true"
             android:text="Keyboard"
             android:textColor="@color/colorOnBackground"
             android:textSize="16sp"
@@ -31,66 +30,121 @@
             android:src="@drawable/ic_close" />
     </RelativeLayout>
 
-    <!-- Các hàng phím -->
-    <ScrollView
+    <!-- Hàng 1: Esc + F1–F12 -->
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_esc" style="@style/KbKey" android:text="Esc" />
+        <Button android:id="@+id/key_f1" style="@style/KbKey" android:text="F1" />
+        <Button android:id="@+id/key_f2" style="@style/KbKey" android:text="F2" />
+        <Button android:id="@+id/key_f3" style="@style/KbKey" android:text="F3" />
+        <Button android:id="@+id/key_f4" style="@style/KbKey" android:text="F4" />
+        <Button android:id="@+id/key_f5" style="@style/KbKey" android:text="F5" />
+        <Button android:id="@+id/key_f6" style="@style/KbKey" android:text="F6" />
+        <Button android:id="@+id/key_f7" style="@style/KbKey" android:text="F7" />
+        <Button android:id="@+id/key_f8" style="@style/KbKey" android:text="F8" />
+        <Button android:id="@+id/key_f9" style="@style/KbKey" android:text="F9" />
+        <Button android:id="@+id/key_f10" style="@style/KbKey" android:text="F10" />
+        <Button android:id="@+id/key_f11" style="@style/KbKey" android:text="F11" />
+        <Button android:id="@+id/key_f12" style="@style/KbKey" android:text="F12" />
+    </LinearLayout>
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:gravity="center_horizontal"
-            android:layout_marginTop="12dp">
+    <!-- Hàng 2: ~ 1–0 - = Backspace -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_backtick" style="@style/KbKey" android:text="`" />
+        <Button android:id="@+id/key_1" style="@style/KbKey" android:text="1" />
+        <Button android:id="@+id/key_2" style="@style/KbKey" android:text="2" />
+        <Button android:id="@+id/key_3" style="@style/KbKey" android:text="3" />
+        <Button android:id="@+id/key_4" style="@style/KbKey" android:text="4" />
+        <Button android:id="@+id/key_5" style="@style/KbKey" android:text="5" />
+        <Button android:id="@+id/key_6" style="@style/KbKey" android:text="6" />
+        <Button android:id="@+id/key_7" style="@style/KbKey" android:text="7" />
+        <Button android:id="@+id/key_8" style="@style/KbKey" android:text="8" />
+        <Button android:id="@+id/key_9" style="@style/KbKey" android:text="9" />
+        <Button android:id="@+id/key_0" style="@style/KbKey" android:text="0" />
+        <Button android:id="@+id/key_hyphen" style="@style/KbKey" android:text="-" />
+        <Button android:id="@+id/key_equal" style="@style/KbKey" android:text="=" />
+        <Button android:id="@+id/key_backspace" style="@style/KbKey" android:text="Backspace" />
+    </LinearLayout>
 
-            <!-- Hàng ngang F1–F12 có scroll ngang -->
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
+    <!-- Hàng 3: Tab + Q–P + [] \ -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_tab" style="@style/KbKey" android:text="Tab" />
+        <Button android:id="@+id/key_q" style="@style/KbKey" android:text="Q" />
+        <Button android:id="@+id/key_w" style="@style/KbKey" android:text="W" />
+        <Button android:id="@+id/key_e" style="@style/KbKey" android:text="E" />
+        <Button android:id="@+id/key_r" style="@style/KbKey" android:text="R" />
+        <Button android:id="@+id/key_t" style="@style/KbKey" android:text="T" />
+        <Button android:id="@+id/key_y" style="@style/KbKey" android:text="Y" />
+        <Button android:id="@+id/key_u" style="@style/KbKey" android:text="U" />
+        <Button android:id="@+id/key_i" style="@style/KbKey" android:text="I" />
+        <Button android:id="@+id/key_o" style="@style/KbKey" android:text="O" />
+        <Button android:id="@+id/key_p" style="@style/KbKey" android:text="P" />
+        <Button android:id="@+id/key_open_bracket" style="@style/KbKey" android:text="[" />
+        <Button android:id="@+id/key_close_bracket" style="@style/KbKey" android:text="]" />
+        <Button android:id="@+id/key_backslash" style="@style/KbKey" android:text="\\" />
+    </LinearLayout>
 
-                <include layout="@layout/row_keyboard_keys1" />
-            </HorizontalScrollView>
+    <!-- Hàng 4: Caps + A–L + ; ' Enter -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_caps_lock" style="@style/KbKey" android:text="Caps" />
+        <Button android:id="@+id/key_a" style="@style/KbKey" android:text="A" />
+        <Button android:id="@+id/key_s" style="@style/KbKey" android:text="S" />
+        <Button android:id="@+id/key_d" style="@style/KbKey" android:text="D" />
+        <Button android:id="@+id/key_f" style="@style/KbKey" android:text="F" />
+        <Button android:id="@+id/key_g" style="@style/KbKey" android:text="G" />
+        <Button android:id="@+id/key_h" style="@style/KbKey" android:text="H" />
+        <Button android:id="@+id/key_j" style="@style/KbKey" android:text="J" />
+        <Button android:id="@+id/key_k" style="@style/KbKey" android:text="K" />
+        <Button android:id="@+id/key_l" style="@style/KbKey" android:text="L" />
+        <Button android:id="@+id/key_semicolon" style="@style/KbKey" android:text=";" />
+        <Button android:id="@+id/key_apostrophe" style="@style/KbKey" android:text="'" />
+        <Button android:id="@+id/key_enter" style="@style/KbKey" android:text="Enter" />
+    </LinearLayout>
 
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
+    <!-- Hàng 5: Shift + Z–M , . / Shift -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_shift_left" style="@style/KbKey" android:text="Shift" />
+        <Button android:id="@+id/key_z" style="@style/KbKey" android:text="Z" />
+        <Button android:id="@+id/key_x" style="@style/KbKey" android:text="X" />
+        <Button android:id="@+id/key_c" style="@style/KbKey" android:text="C" />
+        <Button android:id="@+id/key_v" style="@style/KbKey" android:text="V" />
+        <Button android:id="@+id/key_b" style="@style/KbKey" android:text="B" />
+        <Button android:id="@+id/key_n" style="@style/KbKey" android:text="N" />
+        <Button android:id="@+id/key_m" style="@style/KbKey" android:text="M" />
+        <Button android:id="@+id/key_comma" style="@style/KbKey" android:text="," />
+        <Button android:id="@+id/key_dot" style="@style/KbKey" android:text="." />
+        <Button android:id="@+id/key_slash" style="@style/KbKey" android:text="/" />
+        <Button android:id="@+id/key_shift_right" style="@style/KbKey" android:text="Shift" />
+    </LinearLayout>
 
-                <include layout="@layout/row_keyboard_keys2" />
-            </HorizontalScrollView>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <include layout="@layout/row_keyboard_keys3" />
-            </HorizontalScrollView>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <include layout="@layout/row_keyboard_keys4" />
-            </HorizontalScrollView>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <include layout="@layout/row_keyboard_keys5" />
-            </HorizontalScrollView>
-
-            <HorizontalScrollView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:scrollbars="none">
-
-                <include layout="@layout/row_keyboard_keys6" />
-            </HorizontalScrollView>
-        </LinearLayout>
-    </ScrollView>
+    <!-- Hàng 6: Ctrl Win Alt Space Alt Ctrl Arrows -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+        <Button android:id="@+id/key_control_left" style="@style/KbKey" android:text="Ctrl" />
+        <Button android:id="@+id/key_window" style="@style/KbKey" android:text="Win" />
+        <Button android:id="@+id/key_alt_left" style="@style/KbKey" android:text="Alt" />
+        <Button android:id="@+id/key_space" style="@style/KbKey" android:text="Space" />
+        <Button android:id="@+id/key_alt_right" style="@style/KbKey" android:text="Alt" />
+        <Button android:id="@+id/key_control_right" style="@style/KbKey" android:text="Ctrl" />
+        <Button android:id="@+id/key_arrow_left" style="@style/KbKey" android:text="←" />
+        <Button android:id="@+id/key_arrow_down" style="@style/KbKey" android:text="↓" />
+        <Button android:id="@+id/key_arrow_up" style="@style/KbKey" android:text="↑" />
+        <Button android:id="@+id/key_arrow_right" style="@style/KbKey" android:text="→" />
+    </LinearLayout>
 </LinearLayout>

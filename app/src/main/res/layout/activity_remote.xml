@@ -85,6 +85,14 @@
         android:scaleType="center"
         android:contentDescription="Toggle Panel" />
 
+    <FrameLayout
+        android:id="@+id/layout_overlay"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="center"
+        android:clickable="false"
+        android:focusable="false" />
+
     <com.kiddo.remotescreen.util.CustomKeyboardView
         android:id="@+id/keyboard_overlay"
         android:layout_width="wrap_content"

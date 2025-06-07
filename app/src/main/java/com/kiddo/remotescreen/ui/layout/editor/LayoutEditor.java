@@ -21,6 +21,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.kiddo.remotescreen.R;
 import com.kiddo.remotescreen.model.ButtonData;
+import com.kiddo.remotescreen.model.KeyFunction;
 import com.kiddo.remotescreen.model.LayoutInfo;
 import com.kiddo.remotescreen.ui.layout.editor.component.ButtonComponent;
 import com.kiddo.remotescreen.ui.layout.editor.dialog.SaveLayoutDialog;
@@ -62,7 +63,7 @@ public class LayoutEditor extends AppCompatActivity {
                 @Override
                 public void onGlobalLayout() {
                     canvas.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    loadLayoutFromFile(layoutName); // ⬅️ delay việc load đến khi canvas có kích thước thật
+                    loadLayoutFromFile(layoutName);
                 }
             });
         }
@@ -82,7 +83,7 @@ public class LayoutEditor extends AppCompatActivity {
                             .setNeutralButton("Cancel", null)
                             .show();
                 } else {
-                    finish(); // xử lý mặc định
+                    finish();
                 }
             }
         });
@@ -201,9 +202,9 @@ public class LayoutEditor extends AppCompatActivity {
             float heightRatio = wrapper.getHeight() / canvasHeight;
 
             Object keyObj = wrapper.getTag(R.id.keyFunction);
-            String keyFunction = keyObj instanceof String ? (String) keyObj : null;
+            KeyFunction function = keyObj instanceof KeyFunction ? (KeyFunction) keyObj : null;
 
-            ButtonData data = new ButtonData(name, leftRatio, topRatio, widthRatio, heightRatio, keyFunction);
+            ButtonData data = new ButtonData(name, leftRatio, topRatio, widthRatio, heightRatio, function);
             list.add(data);
         }
 
@@ -217,7 +218,7 @@ public class LayoutEditor extends AppCompatActivity {
 
             Gson gson = new Gson();
             LayoutInfo info = gson.fromJson(new FileReader(file), LayoutInfo.class);
-            originalJson = gson.toJson(info); // ✅ lưu trạng thái ban đầu
+            originalJson = gson.toJson(info);
             ViewGroup canvas = findViewById(R.id.layoutEditorCanvas);
 
             float canvasWidth = canvas.getWidth();
@@ -237,7 +238,7 @@ public class LayoutEditor extends AppCompatActivity {
 
                 view.setLayoutParams(params);
                 button.getTargetButton().setText(data.getName());
-                button.getContainerView().setTag(R.id.keyFunction, data.getKeyFunction());
+                button.getContainerView().setTag(R.id.keyFunction, data.getFunction());
                 button.addToCanvas();
                 components.add(button);
             }

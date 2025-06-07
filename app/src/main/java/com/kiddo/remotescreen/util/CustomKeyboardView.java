@@ -157,16 +157,16 @@ public class CustomKeyboardView extends LinearLayout {
         styled.setSpan(new RelativeSizeSpan(mainScale), hintChar.length() + 1, styled.length(), 0);
 
         button.setText(styled);
-        button.setTextSize(9);
+        button.setTextSize(7);
         button.setSingleLine(false);
         button.setMaxLines(2);
         button.setIncludeFontPadding(false);
         button.setGravity(Gravity.CENTER_HORIZONTAL | Gravity.CENTER_VERTICAL);
-        button.setLineSpacing(-5f, 1f);
+        button.setLineSpacing(-4f, 1f);
         button.setPadding(0, 0, 0, 0);
 
         float density = button.getResources().getDisplayMetrics().density;
-        float offsetDp = -5f;
+        float offsetDp = -4f;
         button.setTranslationY(offsetDp * density);
     }
 

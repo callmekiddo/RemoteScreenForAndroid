@@ -4,6 +4,7 @@ import android.app.Dialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
@@ -117,6 +118,7 @@ public class SaveLayoutDialog extends Dialog {
 
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         String json = gson.toJson(info);
+        android.util.Log.d("SaveLayoutDialog", "Saving layout to: " + file.getAbsolutePath());
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(json);

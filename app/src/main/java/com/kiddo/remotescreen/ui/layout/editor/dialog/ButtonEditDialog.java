@@ -21,8 +21,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.kiddo.remotescreen.R;
+import com.kiddo.remotescreen.model.KeyFunction;
 import com.kiddo.remotescreen.ui.layout.editor.popup.KeyboardFunctionPopup;
 import com.kiddo.remotescreen.ui.layout.editor.popup.MouseFunctionPopup;
+import com.kiddo.remotescreen.util.KeyMapper;
 
 import java.util.Locale;
 
@@ -77,17 +79,10 @@ public class ButtonEditDialog extends DialogFragment {
 
         btnClose.setOnClickListener(v -> dismiss());
 
-        String keyFunction = (String) buttonView.getTag(R.id.keyFunction);
-
-        if (keyFunction != null) {
-            String[] parts = keyFunction.split("_", 2);
-            if (parts.length == 2) {
-                String type = parts[0].substring(0, 1).toUpperCase() + parts[0].substring(1).toLowerCase();
-                String value = parts[1];
-                setFunctionView(type, value, functionSlot);
-            } else {
-                functionSlot.addView(createAddButton(functionSlot));
-            }
+        // Gán lại UI nếu đã có function
+        Object raw = buttonView.getTag(R.id.keyFunction);
+        if (raw instanceof KeyFunction function) {
+            setFunctionView(function, functionSlot);
         } else {
             functionSlot.addView(createAddButton(functionSlot));
         }
@@ -100,18 +95,16 @@ public class ButtonEditDialog extends DialogFragment {
         return view;
     }
 
-    private void setFunctionView(String type, String value, FrameLayout slot) {
+    private void setFunctionView(KeyFunction function, FrameLayout slot) {
         slot.removeAllViews();
 
         View functionView = View.inflate(getContext(), R.layout.item_key_function, null);
         TextView text = functionView.findViewById(R.id.textFunctionName);
         ImageButton remove = functionView.findViewById(R.id.btnRemoveFunction);
 
-        String keyFunctionValue = (type + "_" + value).toUpperCase();
-        String label = type + " " + value;
-        text.setText(label);
+        text.setText(function.getLabel());
 
-        buttonView.setTag(R.id.keyFunction, keyFunctionValue);
+        buttonView.setTag(R.id.keyFunction, function);
 
         remove.setOnClickListener(v -> {
             slot.removeView(functionView);
@@ -139,13 +132,18 @@ public class ButtonEditDialog extends DialogFragment {
 
             popup.setOnMenuItemClickListener(item -> {
                 if (item.getItemId() == R.id.menu_mouse) {
-                    new MouseFunctionPopup(requireActivity(), selected ->
-                            setFunctionView("Mouse", selected, slot)
-                    ).show();
+                    new MouseFunctionPopup(requireActivity(), selected -> {
+                        KeyFunction function = KeyFunction.forMouse(selected);
+                        setFunctionView(function, slot);
+                    }).show();
                 } else if (item.getItemId() == R.id.menu_keyboard) {
-                    new KeyboardFunctionPopup(requireActivity(), selected ->
-                            setFunctionView("Keyboard", selected, slot)
-                    ).show();
+                    new KeyboardFunctionPopup(requireActivity(), view -> {
+                        int keyCode = KeyMapper.getKeyCode(view.getId());
+                        if (keyCode != -1) {
+                            KeyFunction function = KeyFunction.forKey(keyCode);
+                            setFunctionView(function, slot);
+                        }
+                    }).show();
                 }
                 return true;
             });

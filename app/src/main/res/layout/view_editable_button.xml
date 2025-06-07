@@ -19,7 +19,7 @@
             android:textSize="10sp"
             android:layout_centerInParent="true"
             android:background="@drawable/background_button"
-            android:textColor="@color/colorOnBackground"
+            android:textColor="@color/colorPrimary"
             android:clickable="false"
             android:focusable="false"
             android:focusableInTouchMode="false" />

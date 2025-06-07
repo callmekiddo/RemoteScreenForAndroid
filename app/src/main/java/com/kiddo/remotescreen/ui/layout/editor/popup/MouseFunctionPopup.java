@@ -12,7 +12,7 @@ import com.kiddo.remotescreen.R;
 public class MouseFunctionPopup {
 
     public interface OnMouseFunctionSelected {
-        void onSelected(String mouseButton); // e.g. "LEFT", "RIGHT", "MIDDLE"
+        void onSelected(String mouseAction);
     }
 
     private final Dialog dialog;
@@ -32,22 +32,30 @@ public class MouseFunctionPopup {
         Button btnMiddle = dialog.findViewById(R.id.btnMouseMiddle);
         Button btnRight = dialog.findViewById(R.id.btnMouseRight);
 
-        View.OnClickListener clickListener = v -> {
-            String value = null;
-            if (v.getId() == R.id.btnMouseLeft) value = "Left";
-            else if (v.getId() == R.id.btnMouseMiddle) value = "Middle";
-            else if (v.getId() == R.id.btnMouseRight) value = "Right";
-
-            if (value != null && callback != null) {
-                callback.onSelected(value);
-            }
-
+        btnLeft.setOnClickListener(v -> {
+            if (callback != null) callback.onSelected("mouse_press"); // giữ trái
             dialog.dismiss();
-        };
+        });
 
-        btnLeft.setOnClickListener(clickListener);
-        btnMiddle.setOnClickListener(clickListener);
-        btnRight.setOnClickListener(clickListener);
+        btnMiddle.setOnClickListener(v -> {
+//            if (callback != null) callback.onSelected("MIDDLE_CLICK");
+//            dialog.dismiss();
+        });
+
+        btnRight.setOnClickListener(v -> {
+            if (callback != null) callback.onSelected("right_click"); // click phải
+            dialog.dismiss();
+        });
+
+        // Optional: Nếu bạn muốn thêm các chức năng nâng cao
+        // như MOUSE_PRESS, MOUSE_RELEASE, SCROLL_UP, SCROLL_DOWN
+        // bạn có thể thêm thêm nút dưới dạng:
+        //
+        // Button btnScrollUp = dialog.findViewById(R.id.btnMouseScrollUp);
+        // btnScrollUp.setOnClickListener(v -> {
+        //     if (callback != null) callback.onSelected("SCROLL_UP");
+        //     dialog.dismiss();
+        // });
     }
 
     public void show() {

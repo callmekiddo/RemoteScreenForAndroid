@@ -1,28 +1,37 @@
 package com.kiddo.remotescreen.model;
 
-public class ButtonData {
-    public String name;
-    public String keyFunction;
-    public float leftRatio;
-    public float topRatio;
-    public float widthRatio;
-    public float heightRatio;
+import java.util.Collections;
+import java.util.List;
 
-    public ButtonData(String name, float left, float top, float width, float height, String keyFunction) {
+public class ButtonData {
+    private String name;
+    private float leftRatio;
+    private float topRatio;
+    private float widthRatio;
+    private float heightRatio;
+    private List<KeyFunction> functions;
+
+    public ButtonData(String name, float left, float top, float width, float height, List<KeyFunction> functions) {
         this.name = name;
         this.leftRatio = left;
         this.topRatio = top;
         this.widthRatio = width;
         this.heightRatio = height;
-        this.keyFunction = keyFunction;
+        this.functions = functions;
+    }
+
+    // Constructor chỉ với 1 function
+    public ButtonData(String name, float left, float top, float width, float height, KeyFunction function) {
+        this.name = name;
+        this.leftRatio = left;
+        this.topRatio = top;
+        this.widthRatio = width;
+        this.heightRatio = height;
+        this.functions = function != null ? Collections.singletonList(function) : null;
     }
 
     public String getName() {
         return name;
-    }
-
-    public String getKeyFunction() {
-        return keyFunction;
     }
 
     public float getTopRatio() {
@@ -39,5 +48,17 @@ public class ButtonData {
 
     public float getHeightRatio() {
         return heightRatio;
+    }
+
+    public List<KeyFunction> getFunctions() {
+        return functions;
+    }
+
+    public void setFunctions(List<KeyFunction> functions) {
+        this.functions = functions;
+    }
+
+    public KeyFunction getFunction() {
+        return (functions != null && !functions.isEmpty()) ? functions.get(0) : null;
     }
 }
