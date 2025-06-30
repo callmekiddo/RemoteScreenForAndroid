@@ -67,12 +67,11 @@ public class KeyFunction {
     }
 
 
-    public void send(WebRtcManager rtc) {
+    public void send(WebRtcManager rtc, String action) {
         if (rtc == null || !rtc.isDataChannelReady()) return;
 
         if (type == Type.KEYBOARD) {
-            rtc.sendKey(keyCode, "press");
-            rtc.sendKey(keyCode, "release");
+            rtc.sendKey(keyCode, action);
         } else if (type == Type.MOUSE) {
             if (mouseAction.equals("mouse_press")) {
                 rtc.sendMouseCommand(0, 0, "mouse_press");

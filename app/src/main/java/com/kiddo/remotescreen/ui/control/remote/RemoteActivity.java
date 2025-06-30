@@ -6,6 +6,7 @@ import static com.kiddo.remotescreen.ui.control.remote.keyboard.KeyboardAction.R
 import android.annotation.SuppressLint;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MotionEvent;
@@ -271,10 +272,36 @@ public class RemoteActivity extends AppCompatActivity {
                         params.topMargin = (int)(btn.getTopRatio() * layoutOverlay.getHeight());
                         view.setLayoutParams(params);
 
-                        view.setOnClickListener(vv -> {
-                            KeyFunction f = btn.getFunction(); // nếu bạn đang dùng 1 function
-                            if (f != null) f.send(webRtcManager);
-                        });
+                        KeyFunction f = btn.getFunction();
+                        if (f != null) {
+                            Handler handler = new Handler();
+                            final Runnable[] repeatTask = new Runnable[1];
+
+                            view.setOnTouchListener((vv, event) -> {
+                                if (!webRtcManager.isDataChannelReady()) return false;
+
+                                switch (event.getAction()) {
+                                    case MotionEvent.ACTION_DOWN:
+                                        f.send(webRtcManager, PRESS);
+                                        repeatTask[0] = new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                f.send(webRtcManager, PRESS);
+                                                handler.postDelayed(this, 100); // Lặp lại mỗi 100ms
+                                            }
+                                        };
+                                        handler.postDelayed(repeatTask[0], 400); // Bắt đầu sau 400ms
+                                        return true;
+
+                                    case MotionEvent.ACTION_UP:
+                                    case MotionEvent.ACTION_CANCEL:
+                                        handler.removeCallbacks(repeatTask[0]);
+                                        f.send(webRtcManager, RELEASE);
+                                        return true;
+                                }
+                                return false;
+                            });
+                        }
 
                         layoutContainer.addView(view);
                     }

@@ -47,9 +47,7 @@ public class MouseFunctionPopup {
             dialog.dismiss();
         });
 
-        // Optional: Nếu bạn muốn thêm các chức năng nâng cao
-        // như MOUSE_PRESS, MOUSE_RELEASE, SCROLL_UP, SCROLL_DOWN
-        // bạn có thể thêm thêm nút dưới dạng:
+        // Optional: Thêm các chức năng nâng cao
         //
         // Button btnScrollUp = dialog.findViewById(R.id.btnMouseScrollUp);
         // btnScrollUp.setOnClickListener(v -> {
